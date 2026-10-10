@@ -566,16 +566,33 @@ HTML = r"""<!DOCTYPE html>
     if (!texto) return;
     input.value = "";
     agregar("user", texto);
-    const pensando = agregar("sys", "Pensando... (si propone editar su código, responde s/n en la terminal)");
+    const carga = document.createElement("div");
+    carga.className = "msg loading";
+    carga.innerHTML =
+      '<div class="loading-row"><div class="spinner"></div><span>Pensando…</span></div>' +
+      '<div class="loading-bar"><span></span></div>' +
+      '<div class="loading-meta">0 s · no se puede estimar el tiempo restante' +
+      ' · si pide editar código, responde s/n en la terminal</div>';
+    chat.appendChild(carga);
+    chat.scrollTop = chat.scrollHeight;
+    const meta = carga.querySelector(".loading-meta");
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      const s = Math.floor((Date.now() - t0) / 1000);
+      meta.textContent = s + " s · no se puede estimar el tiempo restante" +
+        " · si pide editar código, responde s/n en la terminal";
+    }, 250);
     bloquear(true);
 
     try {
       const data = await post("/chat", { session, message: texto });
-      pensando.remove();
+      clearInterval(tick);
+      carga.remove();
       (data.tools || []).forEach(t => agregar("tool", "🔧 " + t));
       agregar("bot", data.reply);
     } catch (err) {
-      pensando.remove();
+      clearInterval(tick);
+      carga.remove();
       agregar("error", "Error: " + err.message);
     }
     bloquear(false);
