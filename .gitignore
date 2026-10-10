@@ -1,0 +1,6 @@
+
+clave.txt
+memoria.json
+*.bak
+*.tmp
+__pycache__/
