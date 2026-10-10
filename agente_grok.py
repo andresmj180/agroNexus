@@ -483,6 +483,32 @@ HTML = r"""<!DOCTYPE html>
   }
   form button:hover { background: #A0522D; }
   form button:disabled, input:disabled { opacity: .5; cursor: not-allowed; }
+  .loading {
+    align-self: flex-start; max-width: 80%;
+    background: #4A3224; color: #E8D5B7;
+    border-bottom-left-radius: 4px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .loading-row { display: flex; align-items: center; gap: 10px; }
+  .spinner {
+    width: 16px; height: 16px; flex-shrink: 0;
+    border: 2px solid #6B4423; border-top-color: #E8D5B7;
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-bar {
+    height: 4px; background: #3D2817; border-radius: 4px; overflow: hidden;
+  }
+  .loading-bar > span {
+    display: block; height: 100%; width: 40%;
+    background: #C4A484; border-radius: 4px;
+    animation: slide 1.2s ease-in-out infinite;
+  }
+  @keyframes slide {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(350%); }
+  }
+  .loading-meta { font-size: 12px; color: #C4A484; }
 </style>
 </head>
 <body>
