@@ -799,13 +799,39 @@ HTML = r"""<!DOCTYPE html>
   });
   fondo.addEventListener("click", cerrarMenu);
 
+  adjuntar.addEventListener("click", () => archivo.click());
+  quitarImg.addEventListener("click", quitarImagen);
+  archivo.addEventListener("change", () => {
+    const f = archivo.files && archivo.files[0];
+    if (!f) return;
+    if (!/^image\/(jpeg|png|gif|webp)$/i.test(f.type)) {
+      alert("Usa JPEG, PNG, GIF o WebP.");
+      archivo.value = "";
+      return;
+    }
+    if (f.size > 4 * 1024 * 1024) {
+      alert("La imagen no puede superar 4 MB.");
+      archivo.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      imagenPendiente = reader.result;
+      previewImg.src = imagenPendiente;
+      preview.classList.add("visible");
+    };
+    reader.readAsDataURL(f);
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const texto = input.value.trim();
-    if (!texto) return;
+    const imagen = imagenPendiente;
+    if (!texto && !imagen) return;
     if (!actual) nueva();
     input.value = "";
-    agregar("user", texto);
+    quitarImagen();
+    agregar("user", texto, imagen);
     const carga = document.createElement("div");
     carga.className = "msg loading";
     carga.innerHTML =
@@ -825,7 +851,7 @@ HTML = r"""<!DOCTYPE html>
     bloquear(true);
 
     try {
-      const data = await post("/chat", { session: actual, message: texto });
+      const data = await post("/chat", { session: actual, message: texto, image: imagen });
       clearInterval(tick);
       carga.remove();
       (data.tools || []).forEach(t => agregar("tool", "🔧 " + t));
