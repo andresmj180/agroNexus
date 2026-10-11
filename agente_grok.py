@@ -575,6 +575,31 @@ HTML = r"""<!DOCTYPE html>
     100% { transform: translateX(350%); }
   }
   .loading-meta { font-size: 12px; color: #C4A484; }
+  .msg img.adjunto {
+    max-width: min(320px, 100%); max-height: 240px;
+    border-radius: 10px; display: block; margin-top: 8px; object-fit: contain;
+  }
+  #preview {
+    display: none; max-width: 900px; width: 100%; margin: 0 auto;
+    padding: 0 20px;
+  }
+  #preview.visible { display: block; }
+  .preview-box { display: inline-block; position: relative; }
+  #preview img {
+    max-height: 110px; max-width: 200px; border-radius: 10px;
+    border: 1px solid #6B4423; display: block;
+  }
+  #quitar-img {
+    position: absolute; top: -8px; right: -8px;
+    width: 22px; height: 22px; border: 0; border-radius: 50%;
+    background: #5C2A1E; color: #FDF6EC; cursor: pointer; font-size: 14px;
+    line-height: 22px; padding: 0;
+  }
+  #adjuntar {
+    padding: 0 16px; background: #3D2817; border: 1px solid #6B4423;
+    color: #E8D5B7; font-size: 18px; font-weight: 400;
+  }
+  #adjuntar:hover { background: #4A3224; }
 </style>
 </head>
 <body>
