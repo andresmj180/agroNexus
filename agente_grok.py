@@ -621,8 +621,16 @@ HTML = r"""<!DOCTYPE html>
       <div class="msg sys">agroNexus listo. Escribe tu mensaje abajo.</div>
     </div>
 
+    <div id="preview">
+      <div class="preview-box">
+        <img id="preview-img" alt="Vista previa">
+        <button type="button" id="quitar-img" title="Quitar imagen">×</button>
+      </div>
+    </div>
     <form id="form">
-      <input id="texto" autocomplete="off" placeholder="Escribe un mensaje..." autofocus>
+      <input id="archivo" type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+      <button id="adjuntar" type="button" title="Adjuntar imagen">📎</button>
+      <input id="texto" autocomplete="off" placeholder="Escribe un mensaje o adjunta una imagen..." autofocus>
       <button id="enviar" type="submit">Enviar</button>
     </form>
   </div>
