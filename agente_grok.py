@@ -808,6 +808,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             largo = int(self.headers.get("Content-Length", 0))
+            if largo > 6 * 1024 * 1024:
+                self._enviar(400, json.dumps({"error": "Cuerpo demasiado grande"}))
+                return
             datos = json.loads(self.rfile.read(largo) or b"{}")
         except Exception:
             self._enviar(400, json.dumps({"error": "JSON inválido"}))
@@ -821,11 +824,16 @@ class Handler(BaseHTTPRequestHandler):
 
         elif self.path == "/chat":
             texto = str(datos.get("message", "")).strip()
-            if not texto:
+            try:
+                imagen = _preparar_imagen(str(datos.get("image") or ""))
+            except ValueError as e:
+                self._enviar(400, json.dumps({"error": str(e)}, ensure_ascii=False))
+                return
+            if not texto and not imagen:
                 self._enviar(400, json.dumps({"error": "Mensaje vacío"}))
                 return
             try:
-                respuesta, herramientas = responder(sid, texto)
+                respuesta, herramientas = responder(sid, texto, imagen)
                 self._enviar(200, json.dumps(
                     {"reply": respuesta, "tools": herramientas}, ensure_ascii=False))
             except Exception as e:
