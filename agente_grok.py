@@ -647,9 +647,22 @@ HTML = r"""<!DOCTYPE html>
 
   let conversaciones = [];
   let actual = null;
+  let imagenPendiente = "";
+  const archivo = document.getElementById("archivo");
+  const adjuntar = document.getElementById("adjuntar");
+  const preview = document.getElementById("preview");
+  const previewImg = document.getElementById("preview-img");
+  const quitarImg = document.getElementById("quitar-img");
 
   function uid() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  function quitarImagen() {
+    imagenPendiente = "";
+    archivo.value = "";
+    preview.classList.remove("visible");
+    previewImg.removeAttribute("src");
   }
 
   function cargar() {
@@ -659,7 +672,8 @@ HTML = r"""<!DOCTYPE html>
   }
 
   function guardar() {
-    localStorage.setItem(KEY, JSON.stringify(conversaciones));
+    try { localStorage.setItem(KEY, JSON.stringify(conversaciones)); }
+    catch (e) { /* cuota de localStorage; la conversación sigue en memoria */ }
   }
 
   function convActual() {
@@ -689,17 +703,26 @@ HTML = r"""<!DOCTYPE html>
     });
   }
 
+  function pintarMensaje(m) {
+    const div = document.createElement("div");
+    div.className = "msg " + m.clase;
+    if (m.texto) div.textContent = m.texto;
+    if (m.imagen) {
+      const img = document.createElement("img");
+      img.className = "adjunto";
+      img.src = m.imagen;
+      img.alt = "Imagen adjunta";
+      div.appendChild(img);
+    }
+    return div;
+  }
+
   function pintarChat(mensajes) {
     chat.innerHTML = "";
     const items = (mensajes && mensajes.length)
       ? mensajes
       : [{clase: "sys", texto: "agroNexus listo. Escribe tu mensaje abajo."}];
-    items.forEach(m => {
-      const div = document.createElement("div");
-      div.className = "msg " + m.clase;
-      div.textContent = m.texto;
-      chat.appendChild(div);
-    });
+    items.forEach(m => chat.appendChild(pintarMensaje(m)));
     chat.scrollTop = chat.scrollHeight;
   }
 
@@ -707,6 +730,7 @@ HTML = r"""<!DOCTYPE html>
     const c = { id: uid(), titulo: "Nueva conversación", mensajes: [] };
     conversaciones.unshift(c);
     actual = c.id;
+    quitarImagen();
     guardar();
     pintarLista();
     pintarChat([]);
@@ -724,17 +748,16 @@ HTML = r"""<!DOCTYPE html>
     input.focus();
   }
 
-  function agregar(clase, texto) {
-    const div = document.createElement("div");
-    div.className = "msg " + clase;
-    div.textContent = texto;
+  function agregar(clase, texto, imagen) {
+    const div = pintarMensaje({clase, texto: texto || "", imagen: imagen || ""});
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
     const c = convActual();
     if (c) {
-      c.mensajes.push({clase, texto});
+      c.mensajes.push({clase, texto: texto || "", imagen: imagen || ""});
       if (clase === "user" && c.titulo === "Nueva conversación") {
-        c.titulo = texto.length > 40 ? texto.slice(0, 40) + "…" : texto;
+        const t = texto || "Imagen adjunta";
+        c.titulo = t.length > 40 ? t.slice(0, 40) + "…" : t;
         pintarLista();
       }
       guardar();
@@ -745,6 +768,7 @@ HTML = r"""<!DOCTYPE html>
   function bloquear(estado) {
     input.disabled = estado;
     boton.disabled = estado;
+    adjuntar.disabled = estado;
     if (!estado) input.focus();
   }
 
