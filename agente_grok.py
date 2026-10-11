@@ -478,8 +478,9 @@ HTML = r"""<!DOCTYPE html>
     --texto: #3F362C;
     --texto-suave: #7A6B58;
     --error-bg: #B85C50;
-    --error-texto: #F7F1E6;
+    --error-texto: #FFFFFF;
     --sidebar-hover: #6B5C48;
+    --blanco: #FFFFFF;
   }
   * { box-sizing: border-box; }
   body {
