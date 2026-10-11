@@ -515,6 +515,7 @@ HTML = r"""<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>agroNexus</title>
+<link rel="icon" href="/icon">
 <style>
   :root {
     --oscuro: #5C4E3C;
