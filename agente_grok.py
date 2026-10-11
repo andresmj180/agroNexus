@@ -469,20 +469,22 @@ HTML = r"""<!DOCTYPE html>
 <title>agroNexus</title>
 <style>
   :root {
-    --oscuro: #4A2C2A;
-    --crema: #F0E6D4;
-    --taupe: #8C7364;
-    --fondo: #3A2220;
-    --elevado: #5C3D3B;
-    --acento-hover: #A0897C;
-    --texto-suave: #D4C4B4;
-    --error-bg: #6B3530;
-    --error-texto: #F0D4D0;
+    --oscuro: #5C4E3C;
+    --crema: #F4EDE1;
+    --taupe: #C4A574;
+    --fondo: #E8DCC8;
+    --elevado: #F7F1E6;
+    --acento-hover: #A67C52;
+    --texto: #3F362C;
+    --texto-suave: #7A6B58;
+    --error-bg: #B85C50;
+    --error-texto: #F7F1E6;
+    --sidebar-hover: #6B5C48;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; height: 100vh; display: flex; flex-direction: row;
-    background: var(--fondo); color: var(--crema);
+    background: var(--fondo); color: var(--texto);
     font-family: "Segoe UI", system-ui, sans-serif;
   }
   #fondo {
