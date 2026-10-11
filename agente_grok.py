@@ -949,6 +949,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self._enviar(200, HTML, "text/html")
+        elif self.path == "/icon" and ICONO_RUTA:
+            try:
+                with open(ICONO_RUTA, "rb") as f:
+                    datos = f.read()
+                self._enviar(200, datos, ICONO_TIPO)
+            except OSError:
+                self._enviar(404, "No encontrado", "text/plain")
         else:
             self._enviar(404, "No encontrado", "text/plain")
 
