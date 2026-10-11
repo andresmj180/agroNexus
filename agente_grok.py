@@ -627,7 +627,52 @@ HTML = r"""<!DOCTYPE html>
     <header>
       <div style="display:flex;align-items:center;gap:8px">
         <button id="menu" type="button" aria-label="Menú">☰</button>
-        <h1>🌾 agroNexus</h1>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Logo agroNexus" style="flex-shrink:0;display:block">
+          <defs>
+            <clipPath id="logoAgroNexusClip">
+              <circle cx="100" cy="100" r="90"/>
+            </clipPath>
+          </defs>
+          <circle cx="100" cy="100" r="96" fill="#F4EDE1"/>
+          <g clip-path="url(#logoAgroNexusClip)">
+            <path fill="#1A140C" d="M44 90c0-8 10-16 38-18 30 2 46 14 46 36 0 34-22 58-50 58s-34-20-34-50z"/>
+            <ellipse cx="78" cy="96" rx="36" ry="28" fill="#fff"/>
+            <ellipse cx="66" cy="96" rx="7.5" ry="11" fill="#1A140C"/>
+            <ellipse cx="90" cy="96" rx="7.5" ry="11" fill="#1A140C"/>
+            <path fill="#E8D4A0" stroke="#1A140C" stroke-width="3" d="M8 78c10-24 42-30 72-22 14-12 38-14 58-4 24-8 52 0 60 22-18 14-52 8-84 6-36 4-76 16-106-2z"/>
+            <path fill="#E8D4A0" stroke="#1A140C" stroke-width="3" d="M68 58c2-34 18-46 32-46s32 12 34 46c-10 8-56 8-66 0z"/>
+            <path fill="none" stroke="#1A140C" stroke-width="3.2" d="M78 24l2 38M90 16v44M110 16v44M122 24l-2 38"/>
+            <path fill="none" stroke="#1A140C" stroke-width="2.2" d="M94 32l6-7 6 7-6 7zM82 44l5-5 5 5-5 5zM108 44l5-5 5 5-5 5z"/>
+            <path fill="none" stroke="#1A140C" stroke-width="2.2" d="M20 66l12 8 10-10 12 8"/>
+            <path fill="none" stroke="#1A140C" stroke-width="2.2" d="M138 58c14 8 30 6 46 2M140 68c14 8 28 6 44 2"/>
+            <path d="M54 76C48 62 40 48 36 38" fill="none" stroke="#1A140C" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="34" cy="34" r="10" fill="#fff" stroke="#1A140C" stroke-width="4"/>
+            <path d="M62 150c28-8 54-30 84-44" fill="none" stroke="#6B4423" stroke-width="5" stroke-linecap="round"/>
+            <g fill="#2E7D32">
+              <ellipse cx="96" cy="116" rx="16" ry="8" transform="rotate(-50 96 116)"/>
+              <ellipse cx="128" cy="98" rx="18" ry="8" transform="rotate(15 128 98)"/>
+              <ellipse cx="152" cy="122" rx="16" ry="8" transform="rotate(55 152 122)"/>
+              <ellipse cx="82" cy="136" rx="14" ry="7" transform="rotate(-30 82 136)"/>
+              <ellipse cx="140" cy="144" rx="13" ry="7" transform="rotate(25 140 144)"/>
+            </g>
+            <circle cx="110" cy="128" r="7" fill="#C62828"/>
+            <circle cx="122" cy="122" r="7" fill="#E53935"/>
+            <circle cx="118" cy="136" r="6.5" fill="#B71C1C"/>
+            <circle cx="134" cy="110" r="6.5" fill="#D32F2F"/>
+            <circle cx="146" cy="116" r="7" fill="#E53935"/>
+            <circle cx="140" cy="126" r="6" fill="#C62828"/>
+            <circle cx="98" cy="142" r="6" fill="#D32F2F"/>
+            <circle cx="108" cy="148" r="6.5" fill="#C62828"/>
+            <circle cx="128" cy="148" r="5.5" fill="#B71C1C"/>
+            <circle cx="106" cy="126" r="2" fill="#FFCDD2"/>
+            <circle cx="120" cy="120" r="2" fill="#FFCDD2"/>
+            <circle cx="144" cy="114" r="2" fill="#FFCDD2"/>
+            <ellipse cx="56" cy="160" rx="18" ry="15" fill="#fff"/>
+            <ellipse cx="112" cy="164" rx="18" ry="14" fill="#fff"/>
+          </g>
+          <circle cx="100" cy="100" r="92" fill="none" stroke="#1A140C" stroke-width="8"/>
+        </svg>
+        <h1>agroNexus</h1>
       </div>
     </header>
 
