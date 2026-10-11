@@ -547,34 +547,134 @@ HTML = r"""<!DOCTYPE html>
 </style>
 </head>
 <body>
-  <header>
-    <h1>🌾 agroNexus</h1>
-    <button id="reset">Nueva conversación</button>
-  </header>
+  <div id="fondo"></div>
+  <aside id="sidebar">
+    <div class="side-marca">Conversaciones</div>
+    <button id="nueva" type="button">+ Nueva conversación</button>
+    <div id="lista"></div>
+  </aside>
+  <div id="app">
+    <header>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="menu" type="button" aria-label="Menú">☰</button>
+        <h1>🌾 agroNexus</h1>
+      </div>
+    </header>
 
-  <div id="chat">
-    <div class="msg sys">agroNexus listo. Escribe tu mensaje abajo.</div>
+    <div id="chat">
+      <div class="msg sys">agroNexus listo. Escribe tu mensaje abajo.</div>
+    </div>
+
+    <form id="form">
+      <input id="texto" autocomplete="off" placeholder="Escribe un mensaje..." autofocus>
+      <button id="enviar" type="submit">Enviar</button>
+    </form>
   </div>
-
-  <form id="form">
-    <input id="texto" autocomplete="off" placeholder="Escribe un mensaje..." autofocus>
-    <button id="enviar" type="submit">Enviar</button>
-  </form>
 
 <script>
   const chat = document.getElementById("chat");
   const form = document.getElementById("form");
   const input = document.getElementById("texto");
   const boton = document.getElementById("enviar");
+  const lista = document.getElementById("lista");
+  const sidebar = document.getElementById("sidebar");
+  const fondo = document.getElementById("fondo");
+  const KEY = "agronexus_conversaciones";
 
-  let session = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  let conversaciones = [];
+  let actual = null;
+
+  function uid() {
+    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  function cargar() {
+    try { conversaciones = JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch (e) { conversaciones = []; }
+    if (!Array.isArray(conversaciones)) conversaciones = [];
+  }
+
+  function guardar() {
+    localStorage.setItem(KEY, JSON.stringify(conversaciones));
+  }
+
+  function convActual() {
+    return conversaciones.find(c => c.id === actual);
+  }
+
+  function cerrarMenu() {
+    sidebar.classList.remove("abierta");
+    fondo.classList.remove("visible");
+  }
+
+  function pintarLista() {
+    lista.innerHTML = "";
+    if (!conversaciones.length) {
+      const v = document.createElement("div");
+      v.className = "vacio";
+      v.textContent = "Sin conversaciones aún";
+      lista.appendChild(v);
+      return;
+    }
+    conversaciones.forEach(c => {
+      const d = document.createElement("div");
+      d.className = "conv" + (c.id === actual ? " activa" : "");
+      d.textContent = c.titulo || "Nueva conversación";
+      d.addEventListener("click", () => abrir(c.id));
+      lista.appendChild(d);
+    });
+  }
+
+  function pintarChat(mensajes) {
+    chat.innerHTML = "";
+    const items = (mensajes && mensajes.length)
+      ? mensajes
+      : [{clase: "sys", texto: "agroNexus listo. Escribe tu mensaje abajo."}];
+    items.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "msg " + m.clase;
+      div.textContent = m.texto;
+      chat.appendChild(div);
+    });
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function nueva() {
+    const c = { id: uid(), titulo: "Nueva conversación", mensajes: [] };
+    conversaciones.unshift(c);
+    actual = c.id;
+    guardar();
+    pintarLista();
+    pintarChat([]);
+    cerrarMenu();
+    input.focus();
+  }
+
+  function abrir(id) {
+    const c = conversaciones.find(x => x.id === id);
+    if (!c) return;
+    actual = id;
+    pintarLista();
+    pintarChat(c.mensajes);
+    cerrarMenu();
+    input.focus();
+  }
 
   function agregar(clase, texto) {
     const div = document.createElement("div");
     div.className = "msg " + clase;
-    div.textContent = texto;          // textContent evita inyección de HTML
+    div.textContent = texto;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
+    const c = convActual();
+    if (c) {
+      c.mensajes.push({clase, texto});
+      if (clase === "user" && c.titulo === "Nueva conversación") {
+        c.titulo = texto.length > 40 ? texto.slice(0, 40) + "…" : texto;
+        pintarLista();
+      }
+      guardar();
+    }
     return div;
   }
 
@@ -595,10 +695,27 @@ HTML = r"""<!DOCTYPE html>
     return json;
   }
 
+  cargar();
+  if (conversaciones.length) {
+    actual = conversaciones[0].id;
+    pintarLista();
+    pintarChat(conversaciones[0].mensajes);
+  } else {
+    nueva();
+  }
+
+  document.getElementById("nueva").addEventListener("click", nueva);
+  document.getElementById("menu").addEventListener("click", () => {
+    sidebar.classList.add("abierta");
+    fondo.classList.add("visible");
+  });
+  fondo.addEventListener("click", cerrarMenu);
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const texto = input.value.trim();
     if (!texto) return;
+    if (!actual) nueva();
     input.value = "";
     agregar("user", texto);
     const carga = document.createElement("div");
@@ -620,7 +737,7 @@ HTML = r"""<!DOCTYPE html>
     bloquear(true);
 
     try {
-      const data = await post("/chat", { session, message: texto });
+      const data = await post("/chat", { session: actual, message: texto });
       clearInterval(tick);
       carga.remove();
       (data.tools || []).forEach(t => agregar("tool", "🔧 " + t));
@@ -631,14 +748,6 @@ HTML = r"""<!DOCTYPE html>
       agregar("error", "Error: " + err.message);
     }
     bloquear(false);
-  });
-
-  document.getElementById("reset").addEventListener("click", async () => {
-    try { await post("/reset", { session }); } catch (e) {}
-    session = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    chat.innerHTML = "";
-    agregar("sys", "Conversación reiniciada.");
-    input.focus();
   });
 </script>
 </body>
