@@ -439,10 +439,35 @@ HTML = r"""<!DOCTYPE html>
 <style>
   * { box-sizing: border-box; }
   body {
-    margin: 0; height: 100vh; display: flex; flex-direction: column;
+    margin: 0; height: 100vh; display: flex; flex-direction: row;
     background: #2B1A12; color: #F3E6D4;
     font-family: "Segoe UI", system-ui, sans-serif;
   }
+  #fondo {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 15;
+  }
+  #sidebar {
+    width: 260px; flex-shrink: 0; display: flex; flex-direction: column;
+    background: #3D2817; border-right: 1px solid #6B4423; z-index: 20;
+  }
+  .side-marca {
+    padding: 16px 16px 8px; font-size: 13px; color: #C4A484; letter-spacing: .4px;
+  }
+  #nueva {
+    margin: 8px 12px 12px; padding: 10px 12px; border: 1px solid #6B4423;
+    border-radius: 10px; background: #8B5A2B; color: #FDF6EC;
+    font-size: 14px; font-weight: 600; cursor: pointer; text-align: left;
+  }
+  #nueva:hover { background: #A0522D; }
+  #lista { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
+  .conv {
+    padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #E8D5B7;
+  }
+  .conv:hover { background: #4A3224; }
+  .conv.activa { background: #4A3224; color: #FDF6EC; }
+  .vacio { padding: 10px 12px; color: #C4A484; font-size: 13px; font-style: italic; }
+  #app { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 20px; background: #3D2817; border-bottom: 1px solid #6B4423;
@@ -453,6 +478,16 @@ HTML = r"""<!DOCTYPE html>
     padding: 8px 14px; cursor: pointer; font-size: 14px;
   }
   header button:hover { background: #A0522D; }
+  #menu { display: none; margin-right: 10px; font-size: 18px; }
+  @media (max-width: 720px) {
+    #sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0;
+      transform: translateX(-100%); transition: transform .2s ease;
+    }
+    #sidebar.abierta { transform: translateX(0); }
+    #fondo.visible { display: block; }
+    #menu { display: inline-block; }
+  }
   #chat {
     flex: 1; overflow-y: auto; padding: 20px;
     display: flex; flex-direction: column; gap: 12px;
