@@ -468,10 +468,21 @@ HTML = r"""<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>agroNexus</title>
 <style>
+  :root {
+    --oscuro: #4A2C2A;
+    --crema: #F0E6D4;
+    --taupe: #8C7364;
+    --fondo: #3A2220;
+    --elevado: #5C3D3B;
+    --acento-hover: #A0897C;
+    --texto-suave: #D4C4B4;
+    --error-bg: #6B3530;
+    --error-texto: #F0D4D0;
+  }
   * { box-sizing: border-box; }
   body {
     margin: 0; height: 100vh; display: flex; flex-direction: row;
-    background: #2B1A12; color: #F3E6D4;
+    background: var(--fondo); color: var(--crema);
     font-family: "Segoe UI", system-ui, sans-serif;
   }
   #fondo {
@@ -479,36 +490,36 @@ HTML = r"""<!DOCTYPE html>
   }
   #sidebar {
     width: 260px; flex-shrink: 0; display: flex; flex-direction: column;
-    background: #3D2817; border-right: 1px solid #6B4423; z-index: 20;
+    background: var(--oscuro); border-right: 1px solid var(--taupe); z-index: 20;
   }
   .side-marca {
-    padding: 16px 16px 8px; font-size: 13px; color: #C4A484; letter-spacing: .4px;
+    padding: 16px 16px 8px; font-size: 13px; color: var(--texto-suave); letter-spacing: .4px;
   }
   #nueva {
-    margin: 8px 12px 12px; padding: 10px 12px; border: 1px solid #6B4423;
-    border-radius: 10px; background: #8B5A2B; color: #FDF6EC;
+    margin: 8px 12px 12px; padding: 10px 12px; border: 1px solid var(--taupe);
+    border-radius: 10px; background: var(--taupe); color: var(--crema);
     font-size: 14px; font-weight: 600; cursor: pointer; text-align: left;
   }
-  #nueva:hover { background: #A0522D; }
+  #nueva:hover { background: var(--acento-hover); }
   #lista { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
   .conv {
     padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #E8D5B7;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--crema);
   }
-  .conv:hover { background: #4A3224; }
-  .conv.activa { background: #4A3224; color: #FDF6EC; }
-  .vacio { padding: 10px 12px; color: #C4A484; font-size: 13px; font-style: italic; }
+  .conv:hover { background: var(--elevado); }
+  .conv.activa { background: var(--elevado); color: var(--crema); }
+  .vacio { padding: 10px 12px; color: var(--texto-suave); font-size: 13px; font-style: italic; }
   #app { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 20px; background: #3D2817; border-bottom: 1px solid #6B4423;
+    padding: 14px 20px; background: var(--oscuro); border-bottom: 1px solid var(--taupe);
   }
-  header h1 { font-size: 18px; margin: 0; color: #E8D5B7; letter-spacing: 0.4px; }
+  header h1 { font-size: 18px; margin: 0; color: var(--crema); letter-spacing: 0.4px; }
   header button {
-    background: #8B5A2B; color: #F5E6D3; border: 0; border-radius: 8px;
+    background: var(--taupe); color: var(--crema); border: 0; border-radius: 8px;
     padding: 8px 14px; cursor: pointer; font-size: 14px;
   }
-  header button:hover { background: #A0522D; }
+  header button:hover { background: var(--acento-hover); }
   #menu { display: none; margin-right: 10px; font-size: 18px; }
   @media (max-width: 720px) {
     #sidebar {
@@ -528,53 +539,53 @@ HTML = r"""<!DOCTYPE html>
     max-width: 80%; padding: 12px 16px; border-radius: 14px;
     line-height: 1.5; white-space: pre-wrap; word-wrap: break-word;
   }
-  .user { align-self: flex-end; background: #8B5A2B; color: #FDF6EC; border-bottom-right-radius: 4px; }
-  .bot  { align-self: flex-start; background: #4A3224; color: #F3E6D4; border-bottom-left-radius: 4px; }
+  .user { align-self: flex-end; background: var(--taupe); color: var(--crema); border-bottom-right-radius: 4px; }
+  .bot  { align-self: flex-start; background: var(--elevado); color: var(--crema); border-bottom-left-radius: 4px; }
   .tool { align-self: flex-start; font-family: Consolas, monospace; font-size: 13px;
-          color: #D4A574; padding: 2px 6px; }
-  .error { align-self: flex-start; background: #5C2A1E; color: #E8C4B8; }
-  .sys  { align-self: center; color: #C4A484; font-style: italic; font-size: 14px; }
+          color: var(--texto-suave); padding: 2px 6px; }
+  .error { align-self: flex-start; background: var(--error-bg); color: var(--error-texto); }
+  .sys  { align-self: center; color: var(--texto-suave); font-style: italic; font-size: 14px; }
   form {
     display: flex; gap: 10px; padding: 14px 20px 20px;
     max-width: 900px; width: 100%; margin: 0 auto;
   }
   input {
-    flex: 1; padding: 14px 16px; border-radius: 12px; border: 1px solid #6B4423;
-    background: #3D2817; color: #F5E6D3; font-size: 16px; outline: none;
+    flex: 1; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--taupe);
+    background: var(--oscuro); color: var(--crema); font-size: 16px; outline: none;
   }
-  input:focus { border-color: #C4A484; }
+  input:focus { border-color: var(--crema); }
   form button {
-    padding: 0 24px; border: 0; border-radius: 12px; background: #8B5A2B;
-    color: #FDF6EC; font-size: 16px; font-weight: 600; cursor: pointer;
+    padding: 0 24px; border: 0; border-radius: 12px; background: var(--taupe);
+    color: var(--crema); font-size: 16px; font-weight: 600; cursor: pointer;
   }
-  form button:hover { background: #A0522D; }
+  form button:hover { background: var(--acento-hover); }
   form button:disabled, input:disabled { opacity: .5; cursor: not-allowed; }
   .loading {
     align-self: flex-start; max-width: 80%;
-    background: #4A3224; color: #E8D5B7;
+    background: var(--elevado); color: var(--crema);
     border-bottom-left-radius: 4px;
     display: flex; flex-direction: column; gap: 10px;
   }
   .loading-row { display: flex; align-items: center; gap: 10px; }
   .spinner {
     width: 16px; height: 16px; flex-shrink: 0;
-    border: 2px solid #6B4423; border-top-color: #E8D5B7;
+    border: 2px solid var(--taupe); border-top-color: var(--crema);
     border-radius: 50%; animation: spin .8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-bar {
-    height: 4px; background: #3D2817; border-radius: 4px; overflow: hidden;
+    height: 4px; background: var(--oscuro); border-radius: 4px; overflow: hidden;
   }
   .loading-bar > span {
     display: block; height: 100%; width: 40%;
-    background: #C4A484; border-radius: 4px;
+    background: var(--texto-suave); border-radius: 4px;
     animation: slide 1.2s ease-in-out infinite;
   }
   @keyframes slide {
     0% { transform: translateX(-120%); }
     100% { transform: translateX(350%); }
   }
-  .loading-meta { font-size: 12px; color: #C4A484; }
+  .loading-meta { font-size: 12px; color: var(--texto-suave); }
   .msg img.adjunto {
     max-width: min(320px, 100%); max-height: 240px;
     border-radius: 10px; display: block; margin-top: 8px; object-fit: contain;
@@ -587,19 +598,19 @@ HTML = r"""<!DOCTYPE html>
   .preview-box { display: inline-block; position: relative; }
   #preview img {
     max-height: 110px; max-width: 200px; border-radius: 10px;
-    border: 1px solid #6B4423; display: block;
+    border: 1px solid var(--taupe); display: block;
   }
   #quitar-img {
     position: absolute; top: -8px; right: -8px;
     width: 22px; height: 22px; border: 0; border-radius: 50%;
-    background: #5C2A1E; color: #FDF6EC; cursor: pointer; font-size: 14px;
+    background: var(--error-bg); color: var(--crema); cursor: pointer; font-size: 14px;
     line-height: 22px; padding: 0;
   }
   #adjuntar {
-    padding: 0 16px; background: #3D2817; border: 1px solid #6B4423;
-    color: #E8D5B7; font-size: 18px; font-weight: 400;
+    padding: 0 16px; background: var(--oscuro); border: 1px solid var(--taupe);
+    color: var(--crema); font-size: 18px; font-weight: 400;
   }
-  #adjuntar:hover { background: #4A3224; }
+  #adjuntar:hover { background: var(--elevado); }
 </style>
 </head>
 <body>
