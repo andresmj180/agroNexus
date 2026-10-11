@@ -493,24 +493,24 @@ HTML = r"""<!DOCTYPE html>
   }
   #sidebar {
     width: 260px; flex-shrink: 0; display: flex; flex-direction: column;
-    background: var(--oscuro); border-right: 1px solid var(--taupe); z-index: 20;
+    background: var(--crema); border-right: 1px solid var(--taupe); z-index: 20;
   }
   .side-marca {
     padding: 16px 16px 8px; font-size: 13px; color: var(--texto-suave); letter-spacing: .4px;
   }
   #nueva {
     margin: 8px 12px 12px; padding: 10px 12px; border: 1px solid var(--taupe);
-    border-radius: 10px; background: var(--taupe); color: var(--crema);
+    border-radius: 10px; background: var(--taupe); color: var(--oscuro);
     font-size: 14px; font-weight: 600; cursor: pointer; text-align: left;
   }
-  #nueva:hover { background: var(--acento-hover); }
+  #nueva:hover { background: var(--acento-hover); color: var(--crema); }
   #lista { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
   .conv {
     padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--crema);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--texto);
   }
-  .conv:hover { background: var(--elevado); }
-  .conv.activa { background: var(--elevado); color: var(--crema); }
+  .conv:hover { background: var(--fondo); }
+  .conv.activa { background: var(--taupe); color: var(--oscuro); }
   .vacio { padding: 10px 12px; color: var(--texto-suave); font-size: 13px; font-style: italic; }
   #app { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   header {
