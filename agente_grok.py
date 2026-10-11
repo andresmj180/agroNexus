@@ -71,6 +71,54 @@ client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 RUTA = os.path.abspath(__file__)
 
 
+def _asegurar_gitignore_icono() -> None:
+    """Agrega icon/ a .gitignore si aún no está."""
+    ruta_gi = os.path.join(os.path.dirname(RUTA), ".gitignore")
+    try:
+        with open(ruta_gi, encoding="utf-8") as f:
+            contenido = f.read()
+    except FileNotFoundError:
+        contenido = ""
+    except OSError:
+        return
+    lineas = {
+        ln.strip().rstrip("/")
+        for ln in contenido.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    if "icon" in lineas:
+        return
+    extra = "" if not contenido or contenido.endswith("\n") else "\n"
+    try:
+        with open(ruta_gi, "a", encoding="utf-8") as f:
+            f.write(f"{extra}icon/\n")
+    except OSError:
+        pass
+
+
+def _encontrar_icono():
+    """Devuelve (ruta, mime) de la primera imagen en la carpeta icon."""
+    carpeta = os.path.join(os.path.dirname(RUTA), "icon")
+    tipos = {
+        ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+        ".gif": "image/gif", ".webp": "image/webp", ".ico": "image/x-icon",
+        ".svg": "image/svg+xml",
+    }
+    try:
+        nombres = sorted(os.listdir(carpeta))
+    except OSError:
+        return None, None
+    for nombre in nombres:
+        ext = os.path.splitext(nombre)[1].lower()
+        if ext in tipos:
+            return os.path.join(carpeta, nombre), tipos[ext]
+    return None, None
+
+
+ICONO_RUTA, ICONO_TIPO = _encontrar_icono()
+_asegurar_gitignore_icono()
+
+
 # ----------------------------- HERRAMIENTAS -----------------------------
 # Para agregar una herramienta: 1) escribe la función, 2) descríbela en TOOLS,
 # 3) regístrala en FUNCIONES.
