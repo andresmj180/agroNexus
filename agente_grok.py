@@ -396,12 +396,43 @@ def ejecutar_herramienta(nombre: str, args: dict) -> str:
 SESIONES = {}          # id de sesión -> historial de mensajes
 LOCK = threading.Lock()
 
+_TIPOS_IMAGEN = ("image/jpeg", "image/png", "image/gif", "image/webp")
+_MAX_IMAGEN = 4 * 1024 * 1024  # 4 MB
 
-def responder(sid: str, texto: str):
+
+def _preparar_imagen(data_url: str) -> str:
+    """Valida un data URL de imagen y lo devuelve, o lanza ValueError."""
+    data_url = (data_url or "").strip()
+    if not data_url:
+        return ""
+    if not data_url.startswith("data:image/"):
+        raise ValueError("La imagen debe enviarse como data URL.")
+    try:
+        header, b64 = data_url.split(",", 1)
+    except ValueError as e:
+        raise ValueError("Data URL de imagen inválido.") from e
+    mime = header[5:].split(";")[0].strip().lower()
+    if mime not in _TIPOS_IMAGEN:
+        raise ValueError("Tipo de imagen no permitido. Usa JPEG, PNG, GIF o WebP.")
+    if len(b64) > _MAX_IMAGEN * 4 // 3 + 100:
+        raise ValueError("La imagen supera el límite de 4 MB.")
+    return data_url
+
+
+def responder(sid: str, texto: str, imagen: str = ""):
     """Procesa un mensaje y devuelve (respuesta, herramientas_usadas)."""
     with LOCK:
         messages = SESIONES.setdefault(sid, [{"role": "system", "content": SYSTEM_PROMPT}])
-        messages.append({"role": "user", "content": texto})
+        if imagen:
+            messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": texto or "Describe y analiza esta imagen."},
+                    {"type": "image_url", "image_url": {"url": imagen}},
+                ],
+            })
+        else:
+            messages.append({"role": "user", "content": texto})
         usadas = []
 
         for _ in range(8):  # límite de seguridad para evitar bucles infinitos
