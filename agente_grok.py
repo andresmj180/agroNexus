@@ -1386,7 +1386,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             largo = int(self.headers.get("Content-Length", 0))
-            if largo > 6 * 1024 * 1024:
+            if largo > 25 * 1024 * 1024:
                 self._enviar(400, json.dumps({"error": "Cuerpo demasiado grande"}))
                 return
             datos = json.loads(self.rfile.read(largo) or b"{}")
@@ -1404,14 +1404,17 @@ class Handler(BaseHTTPRequestHandler):
             texto = str(datos.get("message", "")).strip()
             try:
                 imagen = _preparar_imagen(str(datos.get("image") or ""))
+                adjuntos = _preparar_adjuntos(
+                    datos.get("attachments") or datos.get("adjuntos") or []
+                )
             except ValueError as e:
                 self._enviar(400, json.dumps({"error": str(e)}, ensure_ascii=False))
                 return
-            if not texto and not imagen:
+            if not texto and not imagen and not adjuntos:
                 self._enviar(400, json.dumps({"error": "Mensaje vacío"}))
                 return
             try:
-                respuesta, herramientas = responder(sid, texto, imagen)
+                respuesta, herramientas = responder(sid, texto, imagen, adjuntos)
                 self._enviar(200, json.dumps(
                     {"reply": respuesta, "tools": herramientas}, ensure_ascii=False))
             except Exception as e:
