@@ -1412,38 +1412,36 @@ HTML = r"""<!DOCTYPE html>
   });
 
   adjuntar.addEventListener("click", () => archivo.click());
-  quitarImg.addEventListener("click", quitarImagen);
-  archivo.addEventListener("change", () => {
-    const f = archivo.files && archivo.files[0];
-    if (!f) return;
-    if (!/^image\/(jpeg|png|gif|webp)$/i.test(f.type)) {
-      alert("Usa JPEG, PNG, GIF o WebP.");
-      archivo.value = "";
-      return;
+  archivo.addEventListener("change", async () => {
+    const files = Array.from(archivo.files || []);
+    archivo.value = "";
+    for (const f of files) {
+      if (pendientes.length >= MAX_ADJ) {
+        alert("Máximo " + MAX_ADJ + " archivos por mensaje.");
+        break;
+      }
+      if (f.size > MAX_BYTES) {
+        alert(f.name + " supera 20 MB.");
+        continue;
+      }
+      try {
+        pendientes.push(await leerArchivo(f));
+      } catch (err) {
+        alert(err.message);
+      }
     }
-    if (f.size > 4 * 1024 * 1024) {
-      alert("La imagen no puede superar 4 MB.");
-      archivo.value = "";
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      imagenPendiente = reader.result;
-      previewImg.src = imagenPendiente;
-      preview.classList.add("visible");
-    };
-    reader.readAsDataURL(f);
+    pintarPreview();
   });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const texto = input.value.trim();
-    const imagen = imagenPendiente;
-    if (!texto && !imagen) return;
+    const adjuntos = pendientes.slice();
+    if (!texto && !adjuntos.length) return;
     if (!actual) nueva();
     input.value = "";
     quitarImagen();
-    agregar("user", texto, imagen);
+    agregar("user", texto, "", adjuntos);
     const carga = document.createElement("div");
     carga.className = "msg loading";
     carga.innerHTML =
