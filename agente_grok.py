@@ -1423,6 +1423,94 @@ HTML = r"""<!DOCTYPE html>
     if (e.key === "Escape") cerrarMenuConv();
   });
 
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let reconocimiento = null;
+  let grabando = false;
+  let textoFijo = "";
+  let textoVivo = "";
+
+  function hayReconocimiento() {
+    return !!SpeechRec;
+  }
+
+  function detenerVoz() {
+    if (!reconocimiento) return;
+    grabando = false;
+    microfono.classList.remove("grabando");
+    microfono.title = "Hablar: transcribe en tiempo real";
+    microfono.setAttribute("aria-label", "Hablar");
+    try { reconocimiento.stop(); } catch (e) {}
+  }
+
+  function aplicarDictado() {
+    const extra = [textoFijo, textoVivo].filter(Boolean).join(" ").trim();
+    const base = (input.dataset.antes || "").replace(/\s+$/, "");
+    input.value = [base, extra].filter(Boolean).join(base ? " " : "");
+  }
+
+  function iniciarVoz() {
+    if (!hayReconocimiento()) {
+      alert("Tu navegador no admite dictado. Prueba Chrome, Edge o Safari.");
+      return;
+    }
+    if (input.disabled) return;
+    textoFijo = "";
+    textoVivo = "";
+    input.dataset.antes = input.value;
+    reconocimiento = new SpeechRec();
+    reconocimiento.lang = "es-MX";
+    reconocimiento.continuous = true;
+    reconocimiento.interimResults = true;
+    reconocimiento.onresult = (ev) => {
+      let fijo = "";
+      let vivo = "";
+      for (let i = 0; i < ev.results.length; i++) {
+        const t = ev.results[i][0].transcript;
+        if (ev.results[i].isFinal) fijo += t + " ";
+        else vivo += t;
+      }
+      textoFijo = fijo.trim();
+      textoVivo = vivo.trim();
+      aplicarDictado();
+    };
+    reconocimiento.onerror = (ev) => {
+      const err = ev.error || "";
+      detenerVoz();
+      if (err === "not-allowed" || err === "service-not-allowed") {
+        alert("Permite el micrófono para dictar el mensaje.");
+      } else if (err === "no-speech") {
+        /* silencio: no molestar */
+      } else if (err && err !== "aborted") {
+        alert("No se pudo dictar (" + err + ").");
+      }
+    };
+    reconocimiento.onend = () => {
+      if (!grabando) return;
+      try { reconocimiento.start(); } catch (e) { detenerVoz(); }
+    };
+    try {
+      reconocimiento.start();
+    } catch (e) {
+      alert("No se pudo iniciar el micrófono.");
+      return;
+    }
+    grabando = true;
+    microfono.classList.add("grabando");
+    microfono.title = "Detener dictado";
+    microfono.setAttribute("aria-label", "Detener dictado");
+    input.focus();
+  }
+
+  if (!hayReconocimiento()) {
+    microfono.disabled = true;
+    microfono.title = "Dictado no disponible en este navegador";
+  }
+
+  microfono.addEventListener("click", () => {
+    if (grabando) detenerVoz();
+    else iniciarVoz();
+  });
+
   adjuntar.addEventListener("click", () => archivo.click());
   archivo.addEventListener("change", async () => {
     const files = Array.from(archivo.files || []);
