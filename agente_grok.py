@@ -1461,7 +1461,11 @@ HTML = r"""<!DOCTYPE html>
     bloquear(true);
 
     try {
-      const data = await post("/chat", { session: actual, message: texto, image: imagen });
+      const data = await post("/chat", {
+        session: actual,
+        message: texto,
+        attachments: adjuntos.map(a => ({name: a.name, type: a.type, data: a.data})),
+      });
       clearInterval(tick);
       carga.remove();
       (data.tools || []).forEach(t => agregar("tool", "🔧 " + t));
