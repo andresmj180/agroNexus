@@ -953,6 +953,14 @@ HTML = r"""<!DOCTYPE html>
     fondo.classList.add("visible");
   });
   fondo.addEventListener("click", cerrarMenu);
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menu-conv") && !e.target.closest(".conv-mas")) {
+      cerrarMenuConv();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") cerrarMenuConv();
+  });
 
   adjuntar.addEventListener("click", () => archivo.click());
   quitarImg.addEventListener("click", quitarImagen);
