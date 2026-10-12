@@ -555,11 +555,34 @@ HTML = r"""<!DOCTYPE html>
   #nueva:hover { background: var(--acento-hover); color: var(--oscuro); }
   #lista { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
   .conv {
-    padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--texto);
+    display: flex; align-items: center; gap: 4px;
+    padding: 6px 6px 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
+    color: var(--texto); position: relative;
+  }
+  .conv-titulo {
+    flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .conv:hover { background: var(--fondo); }
   .conv.activa { background: var(--taupe); color: var(--oscuro); }
+  .conv-mas {
+    flex-shrink: 0; width: 28px; height: 28px; border: 0; border-radius: 8px;
+    background: transparent; color: var(--texto-suave); font-size: 18px; line-height: 1;
+    cursor: pointer; padding: 0;
+  }
+  .conv-mas:hover { background: var(--elevado); color: var(--texto); }
+  .conv.activa .conv-mas { color: var(--oscuro); }
+  .conv.activa .conv-mas:hover { background: var(--acento-hover); }
+  .menu-conv {
+    position: fixed; z-index: 40; min-width: 168px; padding: 6px;
+    background: var(--elevado); border: 1px solid var(--taupe);
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(63,54,44,.18);
+  }
+  .menu-conv-item {
+    display: block; width: 100%; text-align: left;
+    padding: 8px 12px; border: 0; border-radius: 8px;
+    background: transparent; color: var(--texto); font-size: 14px; cursor: pointer;
+  }
+  .menu-conv-item:hover { background: var(--fondo); color: var(--error-bg); }
   .vacio { padding: 10px 12px; color: var(--texto-suave); font-size: 13px; font-style: italic; }
   #app { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   header {
