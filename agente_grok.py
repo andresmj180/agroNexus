@@ -1269,17 +1269,49 @@ HTML = r"""<!DOCTYPE html>
     });
   }
 
+  function pintarAdjunto(div, a) {
+    const tipo = (a && a.type) || "";
+    const data = (a && a.data) || "";
+    const nombre = (a && a.name) || "archivo";
+    if (tipo.startsWith("image/") && data) {
+      const img = document.createElement("img");
+      img.className = "adjunto";
+      img.src = data;
+      img.alt = nombre;
+      div.appendChild(img);
+      return;
+    }
+    if (tipo.startsWith("audio/") && data) {
+      const au = document.createElement("audio");
+      au.className = "adjunto";
+      au.src = data;
+      au.controls = true;
+      div.appendChild(au);
+      return;
+    }
+    if (tipo.startsWith("video/") && data) {
+      const v = document.createElement("video");
+      v.className = "adjunto";
+      v.src = data;
+      v.controls = true;
+      div.appendChild(v);
+      return;
+    }
+    const chip = document.createElement("div");
+    chip.className = "chip-archivo";
+    const span = document.createElement("span");
+    span.textContent = "📎 " + nombre;
+    chip.appendChild(span);
+    div.appendChild(chip);
+  }
+
   function pintarMensaje(m) {
     const div = document.createElement("div");
     div.className = "msg " + m.clase;
     if (m.texto) div.textContent = m.texto;
-    if (m.imagen) {
-      const img = document.createElement("img");
-      img.className = "adjunto";
-      img.src = m.imagen;
-      img.alt = "Imagen adjunta";
-      div.appendChild(img);
-    }
+    const listaAdj = Array.isArray(m.adjuntos) ? m.adjuntos.slice() : [];
+    if (m.imagen) listaAdj.unshift({type: "image/jpeg", data: m.imagen, name: "imagen"});
+    listaAdj.forEach(a => pintarAdjunto(div, a));
     return div;
   }
 
