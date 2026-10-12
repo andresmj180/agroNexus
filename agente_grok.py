@@ -13,15 +13,20 @@ TERMINAL y debes responder s/n ahí. La página espera mientras tanto.
 """
 
 import ast
+import base64
 import datetime
 import difflib
+import html
+import io
 import json
 import operator
 import os
+import re
 import shutil
 import subprocess
 import threading
 import webbrowser
+import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from openai import OpenAI
