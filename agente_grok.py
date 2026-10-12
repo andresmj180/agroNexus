@@ -772,7 +772,57 @@ HTML = r"""<!DOCTYPE html>
     fondo.classList.remove("visible");
   }
 
+  function cerrarMenuConv() {
+    document.querySelectorAll(".menu-conv").forEach(m => m.remove());
+  }
+
+  function borrarConv(id) {
+    cerrarMenuConv();
+    const c = conversaciones.find(x => x.id === id);
+    const nombre = (c && c.titulo) || "esta conversación";
+    if (!confirm("¿Borrar «" + nombre + "»?")) return;
+    conversaciones = conversaciones.filter(x => x.id !== id);
+    guardar();
+    fetch("/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session: id }),
+    }).catch(() => {});
+    if (actual === id) {
+      if (conversaciones.length) abrir(conversaciones[0].id);
+      else nueva();
+    } else {
+      pintarLista();
+    }
+  }
+
+  function menuConv(btn, id) {
+    cerrarMenuConv();
+    const menu = document.createElement("div");
+    menu.className = "menu-conv";
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "menu-conv-item";
+    item.textContent = "Borrar conversación";
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      borrarConv(id);
+    });
+    menu.appendChild(item);
+    document.body.appendChild(menu);
+    const r = btn.getBoundingClientRect();
+    let top = r.bottom + 4;
+    let left = r.right - menu.offsetWidth;
+    if (left < 8) left = 8;
+    if (top + menu.offsetHeight > window.innerHeight - 8) {
+      top = r.top - menu.offsetHeight - 4;
+    }
+    menu.style.top = top + "px";
+    menu.style.left = left + "px";
+  }
+
   function pintarLista() {
+    cerrarMenuConv();
     lista.innerHTML = "";
     if (!conversaciones.length) {
       const v = document.createElement("div");
@@ -784,7 +834,25 @@ HTML = r"""<!DOCTYPE html>
     conversaciones.forEach(c => {
       const d = document.createElement("div");
       d.className = "conv" + (c.id === actual ? " activa" : "");
-      d.textContent = c.titulo || "Nueva conversación";
+      const titulo = document.createElement("span");
+      titulo.className = "conv-titulo";
+      titulo.textContent = c.titulo || "Nueva conversación";
+      const mas = document.createElement("button");
+      mas.type = "button";
+      mas.className = "conv-mas";
+      mas.setAttribute("aria-label", "Más opciones");
+      mas.title = "Más opciones";
+      mas.textContent = "⋮";
+      mas.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (document.querySelector(".menu-conv")) {
+          cerrarMenuConv();
+          return;
+        }
+        menuConv(mas, c.id);
+      });
+      d.appendChild(titulo);
+      d.appendChild(mas);
       d.addEventListener("click", () => abrir(c.id));
       lista.appendChild(d);
     });
