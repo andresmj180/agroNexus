@@ -552,7 +552,7 @@ HTML = r"""<!DOCTYPE html>
     border-radius: 10px; background: var(--taupe); color: var(--oscuro);
     font-size: 14px; font-weight: 600; cursor: pointer; text-align: left;
   }
-  #nueva:hover { background: var(--acento-hover); color: var(--crema); }
+  #nueva:hover { background: var(--acento-hover); color: var(--oscuro); }
   #lista { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
   .conv {
     padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
