@@ -990,17 +990,41 @@ HTML = r"""<!DOCTYPE html>
     max-width: min(320px, 100%); max-height: 240px;
     border-radius: 10px; display: block; margin-top: 8px; object-fit: contain;
   }
+  .msg audio.adjunto, .msg video.adjunto {
+    display: block; margin-top: 8px; max-width: min(360px, 100%);
+  }
+  .msg video.adjunto { max-height: 240px; border-radius: 10px; }
+  .chip-archivo {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 8px; padding: 8px 12px; border-radius: 10px;
+    background: var(--fondo); color: var(--texto); font-size: 13px;
+    max-width: 100%;
+  }
+  .user .chip-archivo { background: var(--acento-hover); color: var(--blanco); }
+  .chip-archivo span {
+    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   #preview {
     display: none; max-width: 900px; width: 100%; margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 20px 8px; display: none; flex-wrap: wrap; gap: 10px;
   }
-  #preview.visible { display: block; }
-  .preview-box { display: inline-block; position: relative; }
-  #preview img {
+  #preview.visible { display: flex; }
+  .preview-box { display: inline-block; position: relative; max-width: 220px; }
+  .preview-box img, .preview-box video {
     max-height: 110px; max-width: 200px; border-radius: 10px;
-    border: 1px solid var(--taupe); display: block;
+    border: 1px solid var(--taupe); display: block; object-fit: cover;
   }
-  #quitar-img {
+  .preview-box audio { width: 200px; }
+  .preview-chip {
+    padding: 10px 14px 10px 12px; background: var(--elevado);
+    border: 1px solid var(--taupe); border-radius: 10px; font-size: 13px;
+    max-width: 220px; color: var(--texto);
+  }
+  .preview-chip strong {
+    display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .preview-chip small { color: var(--texto-suave); }
+  .quitar-adj {
     position: absolute; top: -8px; right: -8px;
     width: 22px; height: 22px; border: 0; border-radius: 50%;
     background: var(--error-bg); color: var(--blanco); cursor: pointer; font-size: 14px;
