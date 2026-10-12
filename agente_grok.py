@@ -1460,11 +1460,9 @@ HTML = r"""<!DOCTYPE html>
   }
 
   document.getElementById("nueva").addEventListener("click", nueva);
-  document.getElementById("menu").addEventListener("click", () => {
-    sidebar.classList.add("abierta");
-    fondo.classList.add("visible");
-  });
+  document.getElementById("menu").addEventListener("click", toggleSidebar);
   fondo.addEventListener("click", cerrarMenu);
+  window.addEventListener("resize", aplicarSidebar);
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".menu-conv") && !e.target.closest(".conv-mas")) {
       cerrarMenuConv();
