@@ -1346,15 +1346,21 @@ HTML = r"""<!DOCTYPE html>
     input.focus();
   }
 
-  function agregar(clase, texto, imagen) {
-    const div = pintarMensaje({clase, texto: texto || "", imagen: imagen || ""});
+  function agregar(clase, texto, imagen, adjuntos) {
+    const item = {
+      clase,
+      texto: texto || "",
+      imagen: imagen || "",
+      adjuntos: Array.isArray(adjuntos) ? adjuntos : [],
+    };
+    const div = pintarMensaje(item);
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
     const c = convActual();
     if (c) {
-      c.mensajes.push({clase, texto: texto || "", imagen: imagen || ""});
+      c.mensajes.push(item);
       if (clase === "user" && c.titulo === "Nueva conversación") {
-        const t = texto || "Imagen adjunta";
+        const t = texto || (item.adjuntos[0] && item.adjuntos[0].name) || "Archivo adjunto";
         c.titulo = t.length > 40 ? t.slice(0, 40) + "…" : t;
         pintarLista();
       }
