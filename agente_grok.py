@@ -1231,7 +1231,6 @@ HTML = r"""<!DOCTYPE html>
   function cerrarMenu() {
     sidebar.classList.remove("abierta");
     fondo.classList.remove("visible");
-    if (!esMovil()) sidebar.classList.add("oculta");
   }
 
   function toggleSidebar() {
