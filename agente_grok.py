@@ -1093,6 +1093,7 @@ HTML = r"""<!DOCTYPE html>
   const archivo = document.getElementById("archivo");
   const adjuntar = document.getElementById("adjuntar");
   const preview = document.getElementById("preview");
+  const microfono = document.getElementById("microfono");
 
   function uid() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
