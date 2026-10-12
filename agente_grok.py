@@ -1030,11 +1030,19 @@ HTML = r"""<!DOCTYPE html>
     background: var(--error-bg); color: var(--blanco); cursor: pointer; font-size: 14px;
     line-height: 22px; padding: 0;
   }
-  #adjuntar {
+  #adjuntar, #microfono {
     padding: 0 16px; background: var(--oscuro); border: 1px solid var(--oscuro);
     color: var(--blanco); font-size: 18px; font-weight: 400;
   }
-  #adjuntar:hover { background: var(--acento-hover); }
+  #adjuntar:hover, #microfono:hover { background: var(--acento-hover); }
+  #microfono.grabando {
+    background: var(--error-bg); border-color: var(--error-bg);
+    animation: pulso-mic .9s ease-in-out infinite;
+  }
+  @keyframes pulso-mic {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .65; }
+  }
 </style>
 </head>
 <body>
