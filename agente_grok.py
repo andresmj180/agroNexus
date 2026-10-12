@@ -1213,9 +1213,35 @@ HTML = r"""<!DOCTYPE html>
     return conversaciones.find(c => c.id === actual);
   }
 
+  function esMovil() {
+    return window.matchMedia("(max-width: 720px)").matches;
+  }
+
+  function aplicarSidebar() {
+    if (esMovil()) {
+      sidebar.classList.remove("oculta");
+      if (sidebar.classList.contains("abierta")) fondo.classList.add("visible");
+      else fondo.classList.remove("visible");
+    } else {
+      sidebar.classList.remove("abierta");
+      fondo.classList.remove("visible");
+    }
+  }
+
   function cerrarMenu() {
     sidebar.classList.remove("abierta");
     fondo.classList.remove("visible");
+    if (!esMovil()) sidebar.classList.add("oculta");
+  }
+
+  function toggleSidebar() {
+    if (esMovil()) {
+      const abrir = !sidebar.classList.contains("abierta");
+      sidebar.classList.toggle("abierta", abrir);
+      fondo.classList.toggle("visible", abrir);
+    } else {
+      sidebar.classList.toggle("oculta");
+    }
   }
 
   function cerrarMenuConv() {
