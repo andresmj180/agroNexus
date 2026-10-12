@@ -518,17 +518,17 @@ HTML = r"""<!DOCTYPE html>
 <link rel="icon" href="/icon">
 <style>
   :root {
-    --oscuro: #5C4E3C;
-    --crema: #F4EDE1;
-    --taupe: #C4A574;
-    --fondo: #E8DCC8;
-    --elevado: #F7F1E6;
-    --acento-hover: #A67C52;
-    --texto: #3F362C;
-    --texto-suave: #7A6B58;
-    --error-bg: #B85C50;
+    --oscuro: #4A3224;
+    --crema: #F3EBDD;
+    --taupe: #6E6B47;
+    --fondo: #E6D4B0;
+    --elevado: #F6F0E4;
+    --acento-hover: #5A5739;
+    --texto: #4A3224;
+    --texto-suave: #8A7355;
+    --error-bg: #A8483C;
     --error-texto: #FFFFFF;
-    --sidebar-hover: #6B5C48;
+    --sidebar-hover: #5A5739;
     --blanco: #FFFFFF;
   }
   * { box-sizing: border-box; }
@@ -542,17 +542,17 @@ HTML = r"""<!DOCTYPE html>
   }
   #sidebar {
     width: 260px; flex-shrink: 0; display: flex; flex-direction: column;
-    background: var(--crema); border-right: 1px solid var(--taupe); z-index: 20;
+    background: var(--fondo); border-right: 1px solid var(--taupe); z-index: 20;
   }
   .side-marca {
     padding: 16px 16px 8px; font-size: 13px; color: var(--texto-suave); letter-spacing: .4px;
   }
   #nueva {
     margin: 8px 12px 12px; padding: 10px 12px; border: 1px solid var(--taupe);
-    border-radius: 10px; background: var(--taupe); color: var(--oscuro);
+    border-radius: 10px; background: var(--taupe); color: var(--blanco);
     font-size: 14px; font-weight: 600; cursor: pointer; text-align: left;
   }
-  #nueva:hover { background: var(--acento-hover); color: var(--oscuro); }
+  #nueva:hover { background: var(--acento-hover); color: var(--blanco); }
   #lista { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
   .conv {
     display: flex; align-items: center; gap: 4px;
@@ -562,15 +562,15 @@ HTML = r"""<!DOCTYPE html>
   .conv-titulo {
     flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .conv:hover { background: var(--fondo); }
-  .conv.activa { background: var(--taupe); color: var(--oscuro); }
+  .conv:hover { background: var(--crema); }
+  .conv.activa { background: var(--taupe); color: var(--blanco); }
   .conv-mas {
     flex-shrink: 0; width: 28px; height: 28px; border: 0; border-radius: 8px;
     background: transparent; color: var(--texto-suave); font-size: 18px; line-height: 1;
     cursor: pointer; padding: 0;
   }
   .conv-mas:hover { background: var(--elevado); color: var(--texto); }
-  .conv.activa .conv-mas { color: var(--oscuro); }
+  .conv.activa .conv-mas { color: var(--blanco); }
   .conv.activa .conv-mas:hover { background: var(--acento-hover); }
   .menu-conv {
     position: fixed; z-index: 40; min-width: 168px; padding: 6px;
@@ -589,13 +589,13 @@ HTML = r"""<!DOCTYPE html>
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 20px; background: var(--oscuro); border-bottom: 1px solid var(--taupe);
   }
-  header h1 { font-size: 18px; margin: 0; color: var(--crema); letter-spacing: 0.4px; }
+  header h1 { font-size: 18px; margin: 0; color: var(--blanco); letter-spacing: 0.4px; }
   header button {
-    background: var(--taupe); color: var(--crema); border: 0; border-radius: 8px;
+    background: var(--taupe); color: var(--blanco); border: 0; border-radius: 8px;
     padding: 8px 14px; cursor: pointer; font-size: 14px;
   }
   header button:hover { background: var(--acento-hover); }
-  #menu { display: none; margin-right: 10px; font-size: 18px; }
+  #menu { display: none; margin-right: 10px; font-size: 18px; color: var(--blanco); }
   @media (max-width: 720px) {
     #sidebar {
       position: fixed; left: 0; top: 0; bottom: 0;
@@ -614,8 +614,8 @@ HTML = r"""<!DOCTYPE html>
     max-width: 80%; padding: 12px 16px; border-radius: 14px;
     line-height: 1.5; white-space: pre-wrap; word-wrap: break-word;
   }
-  .user { align-self: flex-end; background: var(--taupe); color: var(--crema); border-bottom-right-radius: 4px; }
-  .bot  { align-self: flex-start; background: var(--elevado); color: var(--crema); border-bottom-left-radius: 4px; }
+  .user { align-self: flex-end; background: var(--taupe); color: var(--blanco); border-bottom-right-radius: 4px; }
+  .bot  { align-self: flex-start; background: var(--elevado); color: var(--texto); border-bottom-left-radius: 4px; }
   .tool { align-self: flex-start; font-family: Consolas, monospace; font-size: 13px;
           color: var(--texto-suave); padding: 2px 6px; }
   .error { align-self: flex-start; background: var(--error-bg); color: var(--error-texto); }
@@ -625,35 +625,36 @@ HTML = r"""<!DOCTYPE html>
     max-width: 900px; width: 100%; margin: 0 auto;
   }
   input {
-    flex: 1; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--taupe);
-    background: var(--oscuro); color: var(--crema); font-size: 16px; outline: none;
+    flex: 1; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--oscuro);
+    background: var(--oscuro); color: var(--blanco); font-size: 16px; outline: none;
   }
-  input:focus { border-color: var(--crema); }
+  input:focus { border-color: var(--taupe); }
+  input::placeholder { color: rgba(255,255,255,.65); }
   form button {
     padding: 0 24px; border: 0; border-radius: 12px; background: var(--taupe);
-    color: var(--crema); font-size: 16px; font-weight: 600; cursor: pointer;
+    color: var(--blanco); font-size: 16px; font-weight: 600; cursor: pointer;
   }
   form button:hover { background: var(--acento-hover); }
   form button:disabled, input:disabled { opacity: .5; cursor: not-allowed; }
   .loading {
     align-self: flex-start; max-width: 80%;
-    background: var(--elevado); color: var(--crema);
+    background: var(--elevado); color: var(--texto);
     border-bottom-left-radius: 4px;
     display: flex; flex-direction: column; gap: 10px;
   }
   .loading-row { display: flex; align-items: center; gap: 10px; }
   .spinner {
     width: 16px; height: 16px; flex-shrink: 0;
-    border: 2px solid var(--taupe); border-top-color: var(--crema);
+    border: 2px solid var(--taupe); border-top-color: var(--oscuro);
     border-radius: 50%; animation: spin .8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-bar {
-    height: 4px; background: var(--oscuro); border-radius: 4px; overflow: hidden;
+    height: 4px; background: var(--fondo); border-radius: 4px; overflow: hidden;
   }
   .loading-bar > span {
     display: block; height: 100%; width: 40%;
-    background: var(--texto-suave); border-radius: 4px;
+    background: var(--taupe); border-radius: 4px;
     animation: slide 1.2s ease-in-out infinite;
   }
   @keyframes slide {
@@ -678,14 +679,14 @@ HTML = r"""<!DOCTYPE html>
   #quitar-img {
     position: absolute; top: -8px; right: -8px;
     width: 22px; height: 22px; border: 0; border-radius: 50%;
-    background: var(--error-bg); color: var(--crema); cursor: pointer; font-size: 14px;
+    background: var(--error-bg); color: var(--blanco); cursor: pointer; font-size: 14px;
     line-height: 22px; padding: 0;
   }
   #adjuntar {
-    padding: 0 16px; background: var(--oscuro); border: 1px solid var(--taupe);
-    color: var(--crema); font-size: 18px; font-weight: 400;
+    padding: 0 16px; background: var(--oscuro); border: 1px solid var(--oscuro);
+    color: var(--blanco); font-size: 18px; font-weight: 400;
   }
-  #adjuntar:hover { background: var(--elevado); }
+  #adjuntar:hover { background: var(--acento-hover); }
 </style>
 </head>
 <body>
