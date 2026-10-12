@@ -1069,7 +1069,8 @@ HTML = r"""<!DOCTYPE html>
     <form id="form">
       <input id="archivo" type="file" multiple hidden>
       <button id="adjuntar" type="button" title="Adjuntar archivos, documentos, audio o video">📎</button>
-      <input id="texto" autocomplete="off" placeholder="Escribe un mensaje o adjunta archivos..." autofocus>
+      <button id="microfono" type="button" title="Hablar: transcribe en tiempo real" aria-label="Hablar">🎤</button>
+      <input id="texto" autocomplete="off" placeholder="Escribe o pulsa 🎤 para dictar..." autofocus>
       <button id="enviar" type="submit">Enviar</button>
     </form>
   </div>
