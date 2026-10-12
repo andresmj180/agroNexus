@@ -1078,22 +1078,89 @@ HTML = r"""<!DOCTYPE html>
 
   let conversaciones = [];
   let actual = null;
-  let imagenPendiente = "";
+  let pendientes = [];
+  const MAX_ADJ = 8;
+  const MAX_BYTES = 20 * 1024 * 1024;
   const archivo = document.getElementById("archivo");
   const adjuntar = document.getElementById("adjuntar");
   const preview = document.getElementById("preview");
-  const previewImg = document.getElementById("preview-img");
-  const quitarImg = document.getElementById("quitar-img");
 
   function uid() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
 
+  function tamano(n) {
+    if (n < 1024) return n + " B";
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+    return (n / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  function pintarPreview() {
+    preview.innerHTML = "";
+    if (!pendientes.length) {
+      preview.classList.remove("visible");
+      return;
+    }
+    preview.classList.add("visible");
+    pendientes.forEach((p, i) => {
+      const box = document.createElement("div");
+      box.className = "preview-box";
+      const tipo = p.type || "";
+      if (tipo.startsWith("image/")) {
+        const img = document.createElement("img");
+        img.src = p.data;
+        img.alt = p.name;
+        box.appendChild(img);
+      } else if (tipo.startsWith("video/")) {
+        const v = document.createElement("video");
+        v.src = p.data;
+        v.muted = true;
+        box.appendChild(v);
+      } else if (tipo.startsWith("audio/")) {
+        const a = document.createElement("audio");
+        a.src = p.data;
+        a.controls = true;
+        box.appendChild(a);
+      } else {
+        const chip = document.createElement("div");
+        chip.className = "preview-chip";
+        chip.innerHTML = "<strong></strong><small></small>";
+        chip.querySelector("strong").textContent = p.name;
+        chip.querySelector("small").textContent = tamano(p.size || 0);
+        box.appendChild(chip);
+      }
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "quitar-adj";
+      x.title = "Quitar";
+      x.textContent = "×";
+      x.addEventListener("click", () => {
+        pendientes.splice(i, 1);
+        pintarPreview();
+      });
+      box.appendChild(x);
+      preview.appendChild(box);
+    });
+  }
+
   function quitarImagen() {
-    imagenPendiente = "";
+    pendientes = [];
     archivo.value = "";
-    preview.classList.remove("visible");
-    previewImg.removeAttribute("src");
+    pintarPreview();
+  }
+
+  function leerArchivo(f) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({
+        name: f.name,
+        type: f.type || "application/octet-stream",
+        size: f.size,
+        data: reader.result,
+      });
+      reader.onerror = () => reject(new Error("No se pudo leer " + f.name));
+      reader.readAsDataURL(f);
+    });
   }
 
   function cargar() {
