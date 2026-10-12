@@ -1383,6 +1383,8 @@ HTML = r"""<!DOCTYPE html>
     input.disabled = estado;
     boton.disabled = estado;
     adjuntar.disabled = estado;
+    microfono.disabled = estado;
+    if (estado) detenerVoz();
     if (!estado) input.focus();
   }
 
