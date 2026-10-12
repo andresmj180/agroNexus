@@ -919,15 +919,40 @@ HTML = r"""<!DOCTYPE html>
     padding: 8px 14px; cursor: pointer; font-size: 14px;
   }
   header button:hover { background: var(--acento-hover); }
-  #menu { display: none; margin-right: 10px; font-size: 18px; color: var(--blanco); }
+  #sidebar {
+    overflow: hidden; min-width: 0;
+    transition: width .2s ease, transform .2s ease, border-width .2s ease;
+  }
+  #sidebar.oculta {
+    width: 0; min-width: 0; border-right-width: 0; pointer-events: none;
+  }
+  #menu {
+    display: inline-block; margin-right: 10px; font-size: 18px; color: var(--blanco);
+  }
   @media (max-width: 720px) {
-    #sidebar {
+    #sidebar, #sidebar.oculta {
       position: fixed; left: 0; top: 0; bottom: 0;
-      transform: translateX(-100%); transition: transform .2s ease;
+      width: min(80vw, 280px); min-width: 0; pointer-events: auto;
+      transform: translateX(-100%);
+      box-shadow: 4px 0 24px rgba(63, 54, 44, .18);
     }
     #sidebar.abierta { transform: translateX(0); }
     #fondo.visible { display: block; }
-    #menu { display: inline-block; }
+    .msg { max-width: 90%; }
+    #chat { padding: 14px 12px; }
+    form { padding: 10px 12px 16px; gap: 6px; }
+    #preview { padding: 0 12px 8px; }
+    header { padding: 10px 12px; }
+    header h1 { font-size: 16px; }
+    #adjuntar, #microfono { padding: 0 12px; }
+    form button { padding: 0 16px; }
+  }
+  @media (max-width: 480px) {
+    .msg { max-width: 100%; padding: 10px 12px; }
+    header h1 { font-size: 15px; }
+    #enviar { font-size: 14px; padding: 0 12px; }
+    #chat { padding: 10px 8px; }
+    form { padding: 8px 8px 14px; gap: 4px; }
   }
   #chat {
     flex: 1; overflow-y: auto; padding: 20px;
