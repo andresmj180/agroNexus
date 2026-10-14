@@ -216,6 +216,89 @@ def editar_mi_codigo(texto_viejo: str, texto_nuevo: str,
             "Surte efecto al reiniciar el programa.")
 
 
+_CARPETA_AGENTE = os.path.dirname(RUTA)
+_MAX_ARCHIVO_NUEVO = 512 * 1024  # 512 KB
+_ARCHIVOS_PROTEGIDOS = {
+    os.path.basename(RUTA),
+    "clave.txt",
+    "memoria.json",
+    ".gitignore",
+}
+
+
+def _ruta_segura_nueva(ruta_relativa: str) -> str:
+    """Resuelve una ruta relativa dentro de la carpeta del agente."""
+    rel = (ruta_relativa or "").strip().replace("\\", "/")
+    if not rel or rel.startswith("/") or ":" in rel:
+        raise ValueError("Usa una ruta relativa, por ejemplo 'notas/idea.md'.")
+    partes = [p for p in rel.split("/") if p]
+    if not partes or any(p == ".." or p in (".", "") for p in partes):
+        raise ValueError("Ruta inválida.")
+    destino = os.path.abspath(os.path.join(_CARPETA_AGENTE, *partes))
+    raiz = os.path.abspath(_CARPETA_AGENTE)
+    if destino != raiz and not destino.startswith(raiz + os.sep):
+        raise ValueError("La ruta sale de la carpeta del agente.")
+    if os.path.isdir(destino):
+        raise ValueError("Esa ruta es una carpeta, no un archivo.")
+    nombre = os.path.basename(destino)
+    if nombre in _ARCHIVOS_PROTEGIDOS or nombre.endswith(".bak"):
+        raise ValueError(f"No se puede crear ni sobrescribir '{nombre}'.")
+    if nombre == ".env" or nombre.startswith(".git"):
+        raise ValueError("No se pueden crear archivos sensibles de git/entorno.")
+    return destino
+
+
+def crear_archivo(ruta: str, contenido: str,
+                  descripcion: str = "Nuevo archivo del agente",
+                  sobrescribir: bool = False) -> str:
+    """Crea un archivo de texto en la carpeta del agente (con aprobación)."""
+    destino = _ruta_segura_nueva(ruta)
+    rel = os.path.relpath(destino, _CARPETA_AGENTE).replace("\\", "/")
+    contenido = contenido if contenido is not None else ""
+    if not isinstance(contenido, str):
+        return "Error: el contenido debe ser texto."
+    if len(contenido.encode("utf-8")) > _MAX_ARCHIVO_NUEVO:
+        return "Error: el archivo supera 512 KB."
+
+    existe = os.path.isfile(destino)
+    if existe and not sobrescribir:
+        return (f"Error: '{rel}' ya existe. "
+                "Pasa sobrescribir=true si quieres reemplazarlo.")
+
+    preview = contenido if len(contenido) <= 800 else contenido[:800] + "\n…"
+    print("\n=== ARCHIVO PROPUESTO POR EL AGENTE ===")
+    print(f"Ruta: {rel}")
+    print(f"Acción: {'sobrescribir' if existe else 'crear'}")
+    print(f"Mensaje del commit: Agente: {descripcion}")
+    print("--- contenido ---")
+    print(preview.replace(API_KEY, "pk_QOMU0zSjBcOtBHnctxj57KxEONrfZOuQyMdACbXN"))
+    print("--- fin ---")
+    if input("¿Crear este archivo y subirlo a GitHub? (s/n): ").strip().lower() != "s":
+        return "El usuario rechazó la creación del archivo."
+
+    os.makedirs(os.path.dirname(destino) or _CARPETA_AGENTE, exist_ok=True)
+    with open(destino, "w", encoding="utf-8", newline="\n") as f:
+        f.write(contenido)
+
+    carpeta = _CARPETA_AGENTE
+    pasos = (
+        ["git", "add", rel],
+        ["git", "commit", "-m", f"Agente: {descripcion}"],
+        ["git", "push"],
+    )
+    try:
+        for cmd in pasos:
+            r = subprocess.run(cmd, cwd=carpeta, capture_output=True,
+                               text=True, timeout=60)
+            if r.returncode != 0:
+                detalle = (r.stderr or r.stdout).strip()
+                return (f"Archivo guardado en '{rel}', pero git falló "
+                        f"en '{cmd[1]}': {detalle}")
+        return f"Archivo creado: {rel}. Commit y push realizados en GitHub."
+    except Exception as e:
+        return f"Archivo guardado en '{rel}', pero hubo un error con git: {e}"
+
+
 MEMORIA_ARCHIVO = os.path.join(os.path.dirname(RUTA), "memoria.json")
 
 
