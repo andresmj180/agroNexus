@@ -1748,6 +1748,44 @@ HTML = r"""<!DOCTYPE html>
 """
 
 
+# --------------------------- ARCHIVOS ESTÁTICOS --------------------------
+_CARPETA_STATIC = os.path.join(os.path.dirname(RUTA), "static")
+_RUTA_INDEX = os.path.join(_CARPETA_STATIC, "index.html")
+_MIME_STATIC = {
+    ".html": "text/html",
+    ".css": "text/css",
+    ".js": "text/javascript",
+    ".svg": "image/svg+xml",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".ico": "image/x-icon",
+    ".txt": "text/plain",
+    ".json": "application/json",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+}
+
+
+def _ruta_estatica_segura(relativa: str):
+    """Resuelve un archivo dentro de static/ sin salir de esa carpeta."""
+    rel = (relativa or "").replace("\\", "/").lstrip("/")
+    if rel.startswith("static/"):
+        rel = rel[7:]
+    partes = [p for p in rel.split("/") if p]
+    if not partes or any(p == ".." or p == "." for p in partes):
+        return None
+    destino = os.path.abspath(os.path.join(_CARPETA_STATIC, *partes))
+    raiz = os.path.abspath(_CARPETA_STATIC)
+    if destino != raiz and not destino.startswith(raiz + os.sep):
+        return None
+    if not os.path.isfile(destino):
+        return None
+    return destino
+
+
 # ------------------------------ SERVIDOR -------------------------------
 class Handler(BaseHTTPRequestHandler):
     def _enviar(self, codigo, cuerpo, tipo="application/json"):
@@ -1762,13 +1800,31 @@ class Handler(BaseHTTPRequestHandler):
             pass  # el navegador cerró la conexión; no hay a quién responder
 
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
-            self._enviar(200, HTML, "text/html")
-        elif self.path == "/icon" and ICONO_RUTA:
+        ruta = self.path.split("?", 1)[0]
+        if ruta in ("/", "/index.html"):
+            try:
+                with open(_RUTA_INDEX, encoding="utf-8") as f:
+                    self._enviar(200, f.read(), "text/html")
+            except OSError:
+                self._enviar(404, "No encontrado", "text/plain")
+        elif ruta == "/icon" and ICONO_RUTA:
             try:
                 with open(ICONO_RUTA, "rb") as f:
                     datos = f.read()
                 self._enviar(200, datos, ICONO_TIPO)
+            except OSError:
+                self._enviar(404, "No encontrado", "text/plain")
+        elif ruta.startswith("/static/"):
+            destino = _ruta_estatica_segura(ruta)
+            if not destino:
+                self._enviar(404, "No encontrado", "text/plain")
+                return
+            ext = os.path.splitext(destino)[1].lower()
+            tipo = _MIME_STATIC.get(ext, "application/octet-stream")
+            try:
+                with open(destino, "rb") as f:
+                    datos = f.read()
+                self._enviar(200, datos, tipo)
             except OSError:
                 self._enviar(404, "No encontrado", "text/plain")
         else:
