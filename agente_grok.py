@@ -549,6 +549,7 @@ FUNCIONES = {
     "hora_actual": hora_actual,
     "leer_mi_codigo": leer_mi_codigo,
     "editar_mi_codigo": editar_mi_codigo,
+    "crear_archivo": crear_archivo,
     "buscar_web": buscar_web,
     "memoria_leer": memoria_leer,
     "memoria_guardar": memoria_guardar,
