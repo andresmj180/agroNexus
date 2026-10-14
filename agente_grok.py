@@ -462,6 +462,37 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "crear_archivo",
+            "description": "Crea un archivo de texto nuevo en la carpeta del agente "
+                           "(ruta relativa, p. ej. 'notas/idea.md'). El usuario debe "
+                           "aprobar. No sirve para editar este programa: usa editar_mi_codigo.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ruta": {
+                        "type": "string",
+                        "description": "Ruta relativa al archivo, por ejemplo 'docs/readme.md'",
+                    },
+                    "contenido": {
+                        "type": "string",
+                        "description": "Contenido completo del archivo (texto UTF-8)",
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "description": "Mensaje breve del commit (qué archivo y por qué)",
+                    },
+                    "sobrescribir": {
+                        "type": "boolean",
+                        "description": "Si true, reemplaza un archivo que ya existe",
+                    },
+                },
+                "required": ["ruta", "contenido", "descripcion"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "buscar_web",
             "description": "Busca en la web (DuckDuckGo) y devuelve títulos, enlaces y "
                            "fragmentos. Úsala para noticias, datos actuales o hechos inciertos.",
