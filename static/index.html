@@ -1,567 +1,192 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>agroNexus</title>
-<link rel="icon" href="/icon">
-<link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>agroNexus</title>
+  <link rel="icon" href="/icon">
+  <style>
+    :root {
+      --avellana: #E8DCC4;
+      --crema: #F3EBDD;
+      --olive: #6E6B47;
+      --barra: #4A3728;
+      --texto-oscuro: #4A3728;
+      --texto-claro: #FFFFFF;
+      --error: #A8483C;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--crema);
+      color: var(--texto-oscuro);
+      display: flex;
+      flex-direction: column;
+    }
+    body.arrastrando::after {
+      content: "Suelta los archivos aquí";
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(74, 55, 40, 0.55);
+      color: var(--texto-claro);
+      font-size: 1.25rem;
+      z-index: 20;
+      pointer-events: none;
+    }
+    header {
+      background: var(--barra);
+      color: var(--texto-claro);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    #btnNueva {
+      background: var(--olive);
+      color: var(--texto-claro);
+      border: 0;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font: inherit;
+    }
+    #btnNueva:hover { filter: brightness(1.08); }
+    #btnNueva:disabled { opacity: 0.6; cursor: default; }
+    #mensajes {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .msg {
+      max-width: min(72ch, 92%);
+      padding: 0.7rem 0.95rem;
+      border-radius: 12px;
+      line-height: 1.45;
+    }
+    .msg-usuario {
+      align-self: flex-end;
+      background: var(--olive);
+      color: var(--texto-claro);
+    }
+    .msg-asistente {
+      align-self: flex-start;
+      background: var(--avellana);
+      color: var(--texto-oscuro);
+    }
+    .msg-error {
+      align-self: center;
+      background: var(--error);
+      color: var(--texto-claro);
+    }
+    .msg-files {
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+    .msg-tools {
+      margin: 0.5rem 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.78rem;
+      opacity: 0.75;
+    }
+    .pensando { display: inline-flex; gap: 4px; }
+    .pensando i {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; opacity: 0.4;
+      animation: pulso 1s infinite ease-in-out;
+    }
+    .pensando i:nth-child(2) { animation-delay: 0.15s; }
+    .pensando i:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes pulso {
+      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-3px); }
+    }
+    #adjuntosPreview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0 1.25rem 0.4rem;
+    }
+    #adjuntosPreview[hidden] { display: none; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--avellana);
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.85rem;
+    }
+    .chip-x {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      color: var(--texto-oscuro);
+      line-height: 1;
+    }
+    #formulario {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+      padding: 0.75rem 1.25rem 1rem;
+      background: var(--avellana);
+    }
+    #entrada {
+      flex: 1;
+      resize: none;
+      min-height: 2.6rem;
+      max-height: 160px;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #cbbfa6;
+      border-radius: 8px;
+      font: inherit;
+      color: var(--texto-oscuro);
+      background: var(--crema);
+    }
+    #entrada:focus { outline: 2px solid var(--olive); outline-offset: 1px; }
+    #btnAdjuntar, #btnEnviar {
+      border: 0;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      cursor: pointer;
+      font: inherit;
+      color: var(--texto-claro);
+      background: var(--olive);
+    }
+    #btnEnviar { background: var(--barra); }
+    #btnAdjuntar:hover, #btnEnviar:hover { filter: brightness(1.08); }
+    #btnAdjuntar:disabled, #btnEnviar:disabled { opacity: 0.6; cursor: default; }
+    #inputArchivos { display: none; }
+  </style>
 </head>
 <body>
-  <div id="fondo"></div>
-  <aside id="sidebar">
-    <div class="side-marca">Conversaciones</div>
-    <button id="nueva" type="button">+ Nueva conversación</button>
-    <div id="lista"></div>
-  </aside>
-  <div id="app">
-    <header>
-      <div class="header-izq">
-        <button id="menu" type="button" aria-label="Menú">☰</button>
-        <img class="logo" src="/icon" alt="Logo agroNexus" width="40" height="40">
-        <h1>agroNexus</h1>
-      </div>
-    </header>
-
-    <div id="chat">
-      <div class="msg sys">agroNexus listo. Escribe tu mensaje abajo.</div>
-    </div>
-
-    <div id="preview"></div>
-    <form id="form">
-      <input id="archivo" type="file" multiple hidden>
-      <button id="adjuntar" type="button" title="Adjuntar archivos, documentos, audio o video">📎</button>
-      <button id="microfono" type="button" title="Hablar: transcribe en tiempo real" aria-label="Hablar">🎤</button>
-      <input id="texto" autocomplete="off" placeholder="Escribe o pulsa 🎤 para dictar..." autofocus>
-      <button id="enviar" type="submit">Enviar</button>
-    </form>
-  </div>
-
-<script>
-  const chat = document.getElementById("chat");
-  const form = document.getElementById("form");
-  const input = document.getElementById("texto");
-  const boton = document.getElementById("enviar");
-  const lista = document.getElementById("lista");
-  const sidebar = document.getElementById("sidebar");
-  const fondo = document.getElementById("fondo");
-  const KEY = "agronexus_conversaciones";
-
-  let conversaciones = [];
-  let actual = null;
-  let pendientes = [];
-  const MAX_ADJ = 8;
-  const MAX_BYTES = 20 * 1024 * 1024;
-  const archivo = document.getElementById("archivo");
-  const adjuntar = document.getElementById("adjuntar");
-  const preview = document.getElementById("preview");
-  const microfono = document.getElementById("microfono");
-
-  function uid() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-  }
-
-  function tamano(n) {
-    if (n < 1024) return n + " B";
-    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
-    return (n / (1024 * 1024)).toFixed(1) + " MB";
-  }
-
-  function pintarPreview() {
-    preview.innerHTML = "";
-    if (!pendientes.length) {
-      preview.classList.remove("visible");
-      return;
-    }
-    preview.classList.add("visible");
-    pendientes.forEach((p, i) => {
-      const box = document.createElement("div");
-      box.className = "preview-box";
-      const tipo = p.type || "";
-      if (tipo.startsWith("image/")) {
-        const img = document.createElement("img");
-        img.src = p.data;
-        img.alt = p.name;
-        box.appendChild(img);
-      } else if (tipo.startsWith("video/")) {
-        const v = document.createElement("video");
-        v.src = p.data;
-        v.muted = true;
-        box.appendChild(v);
-      } else if (tipo.startsWith("audio/")) {
-        const a = document.createElement("audio");
-        a.src = p.data;
-        a.controls = true;
-        box.appendChild(a);
-      } else {
-        const chip = document.createElement("div");
-        chip.className = "preview-chip";
-        chip.innerHTML = "<strong></strong><small></small>";
-        chip.querySelector("strong").textContent = p.name;
-        chip.querySelector("small").textContent = tamano(p.size || 0);
-        box.appendChild(chip);
-      }
-      const x = document.createElement("button");
-      x.type = "button";
-      x.className = "quitar-adj";
-      x.title = "Quitar";
-      x.textContent = "×";
-      x.addEventListener("click", () => {
-        pendientes.splice(i, 1);
-        pintarPreview();
-      });
-      box.appendChild(x);
-      preview.appendChild(box);
-    });
-  }
-
-  function quitarImagen() {
-    pendientes = [];
-    archivo.value = "";
-    pintarPreview();
-  }
-
-  function leerArchivo(f) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve({
-        name: f.name,
-        type: f.type || "application/octet-stream",
-        size: f.size,
-        data: reader.result,
-      });
-      reader.onerror = () => reject(new Error("No se pudo leer " + f.name));
-      reader.readAsDataURL(f);
-    });
-  }
-
-  function cargar() {
-    try { conversaciones = JSON.parse(localStorage.getItem(KEY) || "[]"); }
-    catch (e) { conversaciones = []; }
-    if (!Array.isArray(conversaciones)) conversaciones = [];
-  }
-
-  function guardar() {
-    try { localStorage.setItem(KEY, JSON.stringify(conversaciones)); }
-    catch (e) { /* cuota de localStorage; la conversación sigue en memoria */ }
-  }
-
-  function convActual() {
-    return conversaciones.find(c => c.id === actual);
-  }
-
-  function esMovil() {
-    return window.matchMedia("(max-width: 720px)").matches;
-  }
-
-  function aplicarSidebar() {
-    if (esMovil()) {
-      sidebar.classList.remove("oculta");
-      if (sidebar.classList.contains("abierta")) fondo.classList.add("visible");
-      else fondo.classList.remove("visible");
-    } else {
-      sidebar.classList.remove("abierta");
-      fondo.classList.remove("visible");
-    }
-  }
-
-  function cerrarMenu() {
-    sidebar.classList.remove("abierta");
-    fondo.classList.remove("visible");
-  }
-
-  function toggleSidebar() {
-    if (esMovil()) {
-      const abrir = !sidebar.classList.contains("abierta");
-      sidebar.classList.toggle("abierta", abrir);
-      fondo.classList.toggle("visible", abrir);
-    } else {
-      sidebar.classList.toggle("oculta");
-    }
-  }
-
-  function cerrarMenuConv() {
-    document.querySelectorAll(".menu-conv").forEach(m => m.remove());
-  }
-
-  function borrarConv(id) {
-    cerrarMenuConv();
-    const c = conversaciones.find(x => x.id === id);
-    const nombre = (c && c.titulo) || "esta conversación";
-    if (!confirm("¿Borrar «" + nombre + "»?")) return;
-    conversaciones = conversaciones.filter(x => x.id !== id);
-    guardar();
-    fetch("/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session: id }),
-    }).catch(() => {});
-    if (actual === id) {
-      if (conversaciones.length) abrir(conversaciones[0].id);
-      else nueva();
-    } else {
-      pintarLista();
-    }
-  }
-
-  function menuConv(btn, id) {
-    cerrarMenuConv();
-    const menu = document.createElement("div");
-    menu.className = "menu-conv";
-    const item = document.createElement("button");
-    item.type = "button";
-    item.className = "menu-conv-item";
-    item.textContent = "Borrar conversación";
-    item.addEventListener("click", (e) => {
-      e.stopPropagation();
-      borrarConv(id);
-    });
-    menu.appendChild(item);
-    document.body.appendChild(menu);
-    const r = btn.getBoundingClientRect();
-    let top = r.bottom + 4;
-    let left = r.right - menu.offsetWidth;
-    if (left < 8) left = 8;
-    if (top + menu.offsetHeight > window.innerHeight - 8) {
-      top = r.top - menu.offsetHeight - 4;
-    }
-    menu.style.top = top + "px";
-    menu.style.left = left + "px";
-  }
-
-  function pintarLista() {
-    cerrarMenuConv();
-    lista.innerHTML = "";
-    if (!conversaciones.length) {
-      const v = document.createElement("div");
-      v.className = "vacio";
-      v.textContent = "Sin conversaciones aún";
-      lista.appendChild(v);
-      return;
-    }
-    conversaciones.forEach(c => {
-      const d = document.createElement("div");
-      d.className = "conv" + (c.id === actual ? " activa" : "");
-      const titulo = document.createElement("span");
-      titulo.className = "conv-titulo";
-      titulo.textContent = c.titulo || "Nueva conversación";
-      const mas = document.createElement("button");
-      mas.type = "button";
-      mas.className = "conv-mas";
-      mas.setAttribute("aria-label", "Más opciones");
-      mas.title = "Más opciones";
-      mas.textContent = "⋮";
-      mas.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (document.querySelector(".menu-conv")) {
-          cerrarMenuConv();
-          return;
-        }
-        menuConv(mas, c.id);
-      });
-      d.appendChild(titulo);
-      d.appendChild(mas);
-      d.addEventListener("click", () => abrir(c.id));
-      lista.appendChild(d);
-    });
-  }
-
-  function pintarAdjunto(div, a) {
-    const tipo = (a && a.type) || "";
-    const data = (a && a.data) || "";
-    const nombre = (a && a.name) || "archivo";
-    if (tipo.startsWith("image/") && data) {
-      const img = document.createElement("img");
-      img.className = "adjunto";
-      img.src = data;
-      img.alt = nombre;
-      div.appendChild(img);
-      return;
-    }
-    if (tipo.startsWith("audio/") && data) {
-      const au = document.createElement("audio");
-      au.className = "adjunto";
-      au.src = data;
-      au.controls = true;
-      div.appendChild(au);
-      return;
-    }
-    if (tipo.startsWith("video/") && data) {
-      const v = document.createElement("video");
-      v.className = "adjunto";
-      v.src = data;
-      v.controls = true;
-      div.appendChild(v);
-      return;
-    }
-    const chip = document.createElement("div");
-    chip.className = "chip-archivo";
-    const span = document.createElement("span");
-    span.textContent = "📎 " + nombre;
-    chip.appendChild(span);
-    div.appendChild(chip);
-  }
-
-  function pintarMensaje(m) {
-    const div = document.createElement("div");
-    div.className = "msg " + m.clase;
-    if (m.texto) div.textContent = m.texto;
-    const listaAdj = Array.isArray(m.adjuntos) ? m.adjuntos.slice() : [];
-    if (m.imagen) listaAdj.unshift({type: "image/jpeg", data: m.imagen, name: "imagen"});
-    listaAdj.forEach(a => pintarAdjunto(div, a));
-    return div;
-  }
-
-  function pintarChat(mensajes) {
-    chat.innerHTML = "";
-    const items = (mensajes && mensajes.length)
-      ? mensajes
-      : [{clase: "sys", texto: "agroNexus listo. Escribe tu mensaje abajo."}];
-    items.forEach(m => chat.appendChild(pintarMensaje(m)));
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  function nueva() {
-    const c = { id: uid(), titulo: "Nueva conversación", mensajes: [] };
-    conversaciones.unshift(c);
-    actual = c.id;
-    quitarImagen();
-    guardar();
-    pintarLista();
-    pintarChat([]);
-    cerrarMenu();
-    input.focus();
-  }
-
-  function abrir(id) {
-    const c = conversaciones.find(x => x.id === id);
-    if (!c) return;
-    actual = id;
-    pintarLista();
-    pintarChat(c.mensajes);
-    cerrarMenu();
-    input.focus();
-  }
-
-  function agregar(clase, texto, imagen, adjuntos) {
-    const item = {
-      clase,
-      texto: texto || "",
-      imagen: imagen || "",
-      adjuntos: Array.isArray(adjuntos) ? adjuntos : [],
-    };
-    const div = pintarMensaje(item);
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    const c = convActual();
-    if (c) {
-      c.mensajes.push(item);
-      if (clase === "user" && c.titulo === "Nueva conversación") {
-        const t = texto || (item.adjuntos[0] && item.adjuntos[0].name) || "Archivo adjunto";
-        c.titulo = t.length > 40 ? t.slice(0, 40) + "…" : t;
-        pintarLista();
-      }
-      guardar();
-    }
-    return div;
-  }
-
-  function bloquear(estado) {
-    input.disabled = estado;
-    boton.disabled = estado;
-    adjuntar.disabled = estado;
-    microfono.disabled = estado;
-    if (estado) detenerVoz();
-    if (!estado) input.focus();
-  }
-
-  async function post(ruta, datos) {
-    const r = await fetch(ruta, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos),
-    });
-    const json = await r.json();
-    if (!r.ok) throw new Error(json.error || "Error del servidor");
-    return json;
-  }
-
-  cargar();
-  if (conversaciones.length) {
-    actual = conversaciones[0].id;
-    pintarLista();
-    pintarChat(conversaciones[0].mensajes);
-  } else {
-    nueva();
-  }
-
-  document.getElementById("nueva").addEventListener("click", nueva);
-  document.getElementById("menu").addEventListener("click", toggleSidebar);
-  fondo.addEventListener("click", cerrarMenu);
-  window.addEventListener("resize", aplicarSidebar);
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".menu-conv") && !e.target.closest(".conv-mas")) {
-      cerrarMenuConv();
-    }
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") cerrarMenuConv();
-  });
-
-  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let reconocimiento = null;
-  let grabando = false;
-  let textoFijo = "";
-  let textoVivo = "";
-
-  function hayReconocimiento() {
-    return !!SpeechRec;
-  }
-
-  function detenerVoz() {
-    if (!reconocimiento) return;
-    grabando = false;
-    microfono.classList.remove("grabando");
-    microfono.title = "Hablar: transcribe en tiempo real";
-    microfono.setAttribute("aria-label", "Hablar");
-    try { reconocimiento.stop(); } catch (e) {}
-  }
-
-  function aplicarDictado() {
-    const extra = [textoFijo, textoVivo].filter(Boolean).join(" ").trim();
-    const base = (input.dataset.antes || "").replace(/\s+$/, "");
-    input.value = [base, extra].filter(Boolean).join(base ? " " : "");
-  }
-
-  function iniciarVoz() {
-    if (!hayReconocimiento()) {
-      alert("Tu navegador no admite dictado. Prueba Chrome, Edge o Safari.");
-      return;
-    }
-    if (input.disabled) return;
-    textoFijo = "";
-    textoVivo = "";
-    input.dataset.antes = input.value;
-    reconocimiento = new SpeechRec();
-    reconocimiento.lang = "es-MX";
-    reconocimiento.continuous = true;
-    reconocimiento.interimResults = true;
-    reconocimiento.onresult = (ev) => {
-      let fijo = "";
-      let vivo = "";
-      for (let i = 0; i < ev.results.length; i++) {
-        const t = ev.results[i][0].transcript;
-        if (ev.results[i].isFinal) fijo += t + " ";
-        else vivo += t;
-      }
-      textoFijo = fijo.trim();
-      textoVivo = vivo.trim();
-      aplicarDictado();
-    };
-    reconocimiento.onerror = (ev) => {
-      const err = ev.error || "";
-      detenerVoz();
-      if (err === "not-allowed" || err === "service-not-allowed") {
-        alert("Permite el micrófono para dictar el mensaje.");
-      } else if (err === "no-speech") {
-        /* silencio: no molestar */
-      } else if (err && err !== "aborted") {
-        alert("No se pudo dictar (" + err + ").");
-      }
-    };
-    reconocimiento.onend = () => {
-      if (!grabando) return;
-      try { reconocimiento.start(); } catch (e) { detenerVoz(); }
-    };
-    try {
-      reconocimiento.start();
-    } catch (e) {
-      alert("No se pudo iniciar el micrófono.");
-      return;
-    }
-    grabando = true;
-    microfono.classList.add("grabando");
-    microfono.title = "Detener dictado";
-    microfono.setAttribute("aria-label", "Detener dictado");
-    input.focus();
-  }
-
-  if (!hayReconocimiento()) {
-    microfono.disabled = true;
-    microfono.title = "Dictado no disponible en este navegador";
-  }
-
-  microfono.addEventListener("click", () => {
-    if (grabando) detenerVoz();
-    else iniciarVoz();
-  });
-
-  adjuntar.addEventListener("click", () => archivo.click());
-  archivo.addEventListener("change", async () => {
-    const files = Array.from(archivo.files || []);
-    archivo.value = "";
-    for (const f of files) {
-      if (pendientes.length >= MAX_ADJ) {
-        alert("Máximo " + MAX_ADJ + " archivos por mensaje.");
-        break;
-      }
-      if (f.size > MAX_BYTES) {
-        alert(f.name + " supera 20 MB.");
-        continue;
-      }
-      try {
-        pendientes.push(await leerArchivo(f));
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-    pintarPreview();
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const texto = input.value.trim();
-    const adjuntos = pendientes.slice();
-    if (!texto && !adjuntos.length) return;
-    if (!actual) nueva();
-    input.value = "";
-    quitarImagen();
-    agregar("user", texto, "", adjuntos);
-    const carga = document.createElement("div");
-    carga.className = "msg loading";
-    carga.innerHTML =
-      '<div class="loading-row"><div class="spinner"></div><span>Pensando…</span></div>' +
-      '<div class="loading-bar"><span></span></div>' +
-      '<div class="loading-meta">0 s · no se puede estimar el tiempo restante' +
-      ' · si pide editar código, responde s/n en la terminal</div>';
-    chat.appendChild(carga);
-    chat.scrollTop = chat.scrollHeight;
-    const meta = carga.querySelector(".loading-meta");
-    const t0 = Date.now();
-    const tick = setInterval(() => {
-      const s = Math.floor((Date.now() - t0) / 1000);
-      meta.textContent = s + " s · no se puede estimar el tiempo restante" +
-        " · si pide editar código, responde s/n en la terminal";
-    }, 250);
-    bloquear(true);
-
-    try {
-      const data = await post("/chat", {
-        session: actual,
-        message: texto,
-        attachments: adjuntos.map(a => ({name: a.name, type: a.type, data: a.data})),
-      });
-      clearInterval(tick);
-      carga.remove();
-      (data.tools || []).forEach(t => agregar("tool", "🔧 " + t));
-      agregar("bot", data.reply);
-    } catch (err) {
-      clearInterval(tick);
-      carga.remove();
-      agregar("error", "Error: " + err.message);
-    }
-    bloquear(false);
-  });
-</script>
+  <header>
+    <h1>agroNexus</h1>
+    <button type="button" id="btnNueva">Nueva conversación</button>
+  </header>
+  <main id="mensajes" aria-live="polite"></main>
+  <div id="adjuntosPreview" hidden></div>
+  <form id="formulario">
+    <input id="inputArchivos" type="file" multiple>
+    <button type="button" id="btnAdjuntar" title="Adjuntar">＋</button>
+    <textarea id="entrada" rows="1" placeholder="Escribe un mensaje…" autocomplete="off"></textarea>
+    <button type="submit" id="btnEnviar">Enviar</button>
+  </form>
+  <script src="/static/app.js" defer></script>
 </body>
 </html>
