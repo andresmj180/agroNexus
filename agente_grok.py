@@ -951,37 +951,6 @@ def responder(sid: str, texto: str, imagen: str = "", adjuntos: list | None = No
 
 # Interfaz web en static/index.html y static/style.css
 HTML_ELIMINADO = r"""
-</head>
-<body>
-  <div id="fondo"></div>
-  <aside id="sidebar">
-    <div class="side-marca">Conversaciones</div>
-    <button id="nueva" type="button">+ Nueva conversación</button>
-    <div id="lista"></div>
-  </aside>
-  <div id="app">
-    <header>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button id="menu" type="button" aria-label="Menú">☰</button>
-        <img src="/icon" alt="Logo agroNexus" width="40" height="40" style="flex-shrink:0;display:block;border-radius:50%;object-fit:cover">
-        <h1>agroNexus</h1>
-      </div>
-    </header>
-
-    <div id="chat">
-      <div class="msg sys">agroNexus listo. Escribe tu mensaje abajo.</div>
-    </div>
-
-    <div id="preview"></div>
-    <form id="form">
-      <input id="archivo" type="file" multiple hidden>
-      <button id="adjuntar" type="button" title="Adjuntar archivos, documentos, audio o video">📎</button>
-      <button id="microfono" type="button" title="Hablar: transcribe en tiempo real" aria-label="Hablar">🎤</button>
-      <input id="texto" autocomplete="off" placeholder="Escribe o pulsa 🎤 para dictar..." autofocus>
-      <button id="enviar" type="submit">Enviar</button>
-    </form>
-  </div>
-
 <script>
   const chat = document.getElementById("chat");
   const form = document.getElementById("form");
