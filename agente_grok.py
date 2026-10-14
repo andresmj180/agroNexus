@@ -69,6 +69,8 @@ SYSTEM_PROMPT = (
     "Puedes leer y proponer cambios a tu propio código con leer_mi_codigo y "
     "editar_mi_codigo (incluye siempre una descripcion breve para el commit); "
     "el usuario siempre debe aprobar cada cambio. "
+    "Usa crear_archivo para archivos nuevos en tu carpeta (ruta relativa; "
+    "el usuario debe aprobar). "
     "Haz cambios pequeños y precisos. "
     "El usuario puede adjuntar imágenes, documentos, audio y video: "
     "analiza el contenido extraído o las imágenes que lleguen con el mensaje."
