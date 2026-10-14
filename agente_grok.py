@@ -949,17 +949,10 @@ def responder(sid: str, texto: str, imagen: str = "", adjuntos: list | None = No
         return "Se alcanzó el límite de pasos sin una respuesta final.", usadas
 
 
-# --------------------------- PÁGINA WEB (HTML) --------------------------
-HTML = r"""<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>agroNexus</title>
-<link rel="icon" href="/icon">
-<style>
+# Interfaz web en static/index.html y static/style.css
+HTML_ELIMINADO = r"""<style>
   :root {
-    --oscuro: #4A3224;
+    --oscuro: #ELIMINADO;
     --crema: #F3EBDD;
     --taupe: #6E6B47;
     --fondo: #E6D4B0;
