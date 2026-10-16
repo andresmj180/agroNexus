@@ -82,7 +82,7 @@ RUTA = os.path.abspath(__file__)
 
 
 def _asegurar_gitignore_icono() -> None:
-    """Agrega icon/ a .gitignore si aún no está."""
+    """Agrega icon/ e historial.json a .gitignore si aún no están."""
     ruta_gi = os.path.join(os.path.dirname(RUTA), ".gitignore")
     try:
         with open(ruta_gi, encoding="utf-8") as f:
@@ -96,12 +96,17 @@ def _asegurar_gitignore_icono() -> None:
         for ln in contenido.splitlines()
         if ln.strip() and not ln.strip().startswith("#")
     }
-    if "icon" in lineas:
+    faltan = []
+    if "icon" not in lineas:
+        faltan.append("icon/")
+    if "historial.json" not in lineas:
+        faltan.append("historial.json")
+    if not faltan:
         return
     extra = "" if not contenido or contenido.endswith("\n") else "\n"
     try:
         with open(ruta_gi, "a", encoding="utf-8") as f:
-            f.write(f"{extra}icon/\n")
+            f.write(extra + "\n".join(faltan) + "\n")
     except OSError:
         pass
 
