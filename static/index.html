@@ -1,192 +1,359 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>agroNexus</title>
-  <link rel="icon" href="/icon">
-  <style>
-    :root {
-      --avellana: #E8DCC4;
-      --crema: #F3EBDD;
-      --olive: #6E6B47;
-      --barra: #4A3728;
-      --texto-oscuro: #4A3728;
-      --texto-claro: #FFFFFF;
-      --error: #A8483C;
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
-    body {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--crema);
-      color: var(--texto-oscuro);
-      display: flex;
-      flex-direction: column;
-    }
-    body.arrastrando::after {
-      content: "Suelta los archivos aquí";
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(74, 55, 40, 0.55);
-      color: var(--texto-claro);
-      font-size: 1.25rem;
-      z-index: 20;
-      pointer-events: none;
-    }
-    header {
-      background: var(--barra);
-      color: var(--texto-claro);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 0.75rem 1.25rem;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.15rem;
-      font-weight: 600;
-    }
-    #btnNueva {
-      background: var(--olive);
-      color: var(--texto-claro);
-      border: 0;
-      border-radius: 6px;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-      font: inherit;
-    }
-    #btnNueva:hover { filter: brightness(1.08); }
-    #btnNueva:disabled { opacity: 0.6; cursor: default; }
-    #mensajes {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .msg {
-      max-width: min(72ch, 92%);
-      padding: 0.7rem 0.95rem;
-      border-radius: 12px;
-      line-height: 1.45;
-    }
-    .msg-usuario {
-      align-self: flex-end;
-      background: var(--olive);
-      color: var(--texto-claro);
-    }
-    .msg-asistente {
-      align-self: flex-start;
-      background: var(--avellana);
-      color: var(--texto-oscuro);
-    }
-    .msg-error {
-      align-self: center;
-      background: var(--error);
-      color: var(--texto-claro);
-    }
-    .msg-files {
-      margin-top: 0.4rem;
-      font-size: 0.85rem;
-      opacity: 0.9;
-    }
-    .msg-tools {
-      margin: 0.5rem 0 0;
-      padding: 0;
-      list-style: none;
-      font-size: 0.78rem;
-      opacity: 0.75;
-    }
-    .pensando { display: inline-flex; gap: 4px; }
-    .pensando i {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: currentColor; opacity: 0.4;
-      animation: pulso 1s infinite ease-in-out;
-    }
-    .pensando i:nth-child(2) { animation-delay: 0.15s; }
-    .pensando i:nth-child(3) { animation-delay: 0.3s; }
-    @keyframes pulso {
-      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
-      40% { opacity: 1; transform: translateY(-3px); }
-    }
-    #adjuntosPreview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      padding: 0 1.25rem 0.4rem;
-    }
-    #adjuntosPreview[hidden] { display: none; }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: var(--avellana);
-      border-radius: 999px;
-      padding: 0.2rem 0.55rem;
-      font-size: 0.85rem;
-    }
-    .chip-x {
-      border: 0;
-      background: transparent;
-      cursor: pointer;
-      font: inherit;
-      color: var(--texto-oscuro);
-      line-height: 1;
-    }
-    #formulario {
-      display: flex;
-      gap: 0.5rem;
-      align-items: flex-end;
-      padding: 0.75rem 1.25rem 1rem;
-      background: var(--avellana);
-    }
-    #entrada {
-      flex: 1;
-      resize: none;
-      min-height: 2.6rem;
-      max-height: 160px;
-      padding: 0.55rem 0.75rem;
-      border: 1px solid #cbbfa6;
-      border-radius: 8px;
-      font: inherit;
-      color: var(--texto-oscuro);
-      background: var(--crema);
-    }
-    #entrada:focus { outline: 2px solid var(--olive); outline-offset: 1px; }
-    #btnAdjuntar, #btnEnviar {
-      border: 0;
-      border-radius: 8px;
-      padding: 0.55rem 0.9rem;
-      cursor: pointer;
-      font: inherit;
-      color: var(--texto-claro);
-      background: var(--olive);
-    }
-    #btnEnviar { background: var(--barra); }
-    #btnAdjuntar:hover, #btnEnviar:hover { filter: brightness(1.08); }
-    #btnAdjuntar:disabled, #btnEnviar:disabled { opacity: 0.6; cursor: default; }
-    #inputArchivos { display: none; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>agroNexus</title>
+<link rel="icon" href="/icon">
+<style>
+  :root {
+    --beige: #E8DCC4;
+    --crema: #F3EBDD;
+    --olive: #6E6B47;
+    --barra: #4A3728;
+    --texto: #4A3728;
+    --blanco: #FFFFFF;
+    --error: #A8483C;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: system-ui, "Segoe UI", sans-serif;
+    background: var(--crema);
+    color: var(--texto);
+    display: flex;
+  }
+  .sidebar {
+    width: 250px;
+    background: var(--olive);
+    color: var(--blanco);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 14px;
+    flex-shrink: 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .brand img {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--beige);
+  }
+  .brand h1 {
+    font-size: 1.15rem;
+    margin: 0;
+    font-weight: 650;
+  }
+  .btn {
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    border-radius: 8px;
+  }
+  .btn-nueva {
+    background: var(--barra);
+    color: var(--blanco);
+    padding: 10px 12px;
+    width: 100%;
+    font-weight: 600;
+  }
+  .btn-nueva:hover { filter: brightness(1.08); }
+  .side-nota {
+    margin-top: 16px;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    opacity: 0.9;
+  }
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+  header {
+    background: var(--barra);
+    color: var(--blanco);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  header strong { font-size: 1rem; }
+  header span { font-size: 0.82rem; opacity: 0.85; }
+  #log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .msg {
+    max-width: 72%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.45;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--olive);
+    color: var(--blanco);
+  }
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--beige);
+    color: var(--texto);
+  }
+  .msg.error {
+    align-self: center;
+    background: var(--error);
+    color: var(--blanco);
+  }
+  .tools {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    color: var(--olive);
+    margin-top: -6px;
+    margin-left: 4px;
+  }
+  .composer {
+    padding: 12px 16px 16px;
+    background: var(--beige);
+    border-top: 1px solid #d4c6a8;
+    flex-shrink: 0;
+  }
+  .previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .chip {
+    background: var(--crema);
+    border: 1px solid #d4c6a8;
+    border-radius: 999px;
+    padding: 4px 8px 4px 10px;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip button {
+    border: 0;
+    background: transparent;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  #adjuntar, #enviar {
+    width: 42px;
+    height: 42px;
+    background: var(--olive);
+    color: var(--blanco);
+    flex-shrink: 0;
+    font-size: 1.1rem;
+  }
+  #adjuntar:hover, #enviar:hover { filter: brightness(1.08); }
+  #adjuntar:disabled, #enviar:disabled { opacity: 0.55; cursor: default; }
+  textarea {
+    flex: 1;
+    resize: none;
+    min-height: 42px;
+    max-height: 140px;
+    padding: 10px 12px;
+    border: 1px solid #cbbfa6;
+    border-radius: 8px;
+    font: inherit;
+    color: var(--texto);
+    background: var(--blanco);
+  }
+  textarea:focus { outline: 2px solid var(--olive); border-color: var(--olive); }
+  @media (max-width: 720px) {
+    .sidebar { display: none; }
+    .msg { max-width: 90%; }
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1>agroNexus</h1>
-    <button type="button" id="btnNueva">Nueva conversación</button>
-  </header>
-  <main id="mensajes" aria-live="polite"></main>
-  <div id="adjuntosPreview" hidden></div>
-  <form id="formulario">
-    <input id="inputArchivos" type="file" multiple>
-    <button type="button" id="btnAdjuntar" title="Adjuntar">＋</button>
-    <textarea id="entrada" rows="1" placeholder="Escribe un mensaje…" autocomplete="off"></textarea>
-    <button type="submit" id="btnEnviar">Enviar</button>
-  </form>
-  <script src="/static/app.js" defer></script>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/icon" alt="">
+      <h1>agroNexus</h1>
+    </div>
+    <button class="btn btn-nueva" id="nueva" type="button">Nueva conversación</button>
+    <p class="side-nota">Asistente local. Los cambios de código se aprueban en la terminal.</p>
+  </aside>
+  <div class="main">
+    <header>
+      <strong>agroNexus</strong>
+      <span id="estado">Listo</span>
+    </header>
+    <div id="log"></div>
+    <form class="composer" id="form">
+      <div class="previews" id="previews"></div>
+      <div class="row">
+        <button class="btn" id="adjuntar" type="button" title="Adjuntar">+</button>
+        <textarea id="texto" rows="1" placeholder="Escribe un mensaje…"></textarea>
+        <button class="btn" id="enviar" type="submit" title="Enviar">➤</button>
+      </div>
+      <input id="archivos" type="file" multiple hidden>
+    </form>
+  </div>
+<script>
+  const log = document.getElementById("log");
+  const form = document.getElementById("form");
+  const texto = document.getElementById("texto");
+  const estado = document.getElementById("estado");
+  const previews = document.getElementById("previews");
+  const inputFiles = document.getElementById("archivos");
+  let sid = crypto.randomUUID();
+  let pendientes = [];
+  let ocupado = false;
+
+  function autoAltura() {
+    texto.style.height = "auto";
+    texto.style.height = Math.min(texto.scrollHeight, 140) + "px";
+  }
+  texto.addEventListener("input", autoAltura);
+
+  function agregar(rol, contenido) {
+    const div = document.createElement("div");
+    div.className = "msg " + rol;
+    div.textContent = contenido;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  function agregarTools(lista) {
+    if (!lista || !lista.length) return;
+    const t = document.createElement("div");
+    t.className = "tools";
+    t.textContent = "Herramientas: " + lista.join(" · ");
+    log.appendChild(t);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function pintarPreviews() {
+    previews.innerHTML = "";
+    pendientes.forEach((p, i) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.append(p.name);
+      const x = document.createElement("button");
+      x.type = "button";
+      x.textContent = "×";
+      x.onclick = () => { pendientes.splice(i, 1); pintarPreviews(); };
+      chip.appendChild(x);
+      previews.appendChild(chip);
+    });
+  }
+
+  function leerArchivo(file) {
+    return new Promise((resolve, reject) => {
+      if (file.size > 20 * 1024 * 1024) {
+        reject(new Error(file.name + " supera 20 MB"));
+        return;
+      }
+      const r = new FileReader();
+      r.onload = () => resolve({ name: file.name, type: file.type, data: r.result });
+      r.onerror = () => reject(new Error("No se pudo leer " + file.name));
+      r.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById("adjuntar").onclick = () => inputFiles.click();
+  inputFiles.onchange = async () => {
+    try {
+      for (const f of inputFiles.files) {
+        if (pendientes.length >= 8) break;
+        pendientes.push(await leerArchivo(f));
+      }
+      pintarPreviews();
+    } catch (e) {
+      agregar("error", e.message);
+    }
+    inputFiles.value = "";
+  };
+
+  document.getElementById("nueva").onclick = async () => {
+    try {
+      await fetch("/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: sid }),
+      });
+    } catch (_) {}
+    sid = crypto.randomUUID();
+    log.innerHTML = "";
+    pendientes = [];
+    pintarPreviews();
+    agregar("bot", "Nueva conversación. ¿En qué te ayudo?");
+    estado.textContent = "Listo";
+    texto.focus();
+  };
+
+  texto.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" && !ev.shiftKey) {
+      ev.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  form.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const message = texto.value.trim();
+    if (ocupado || (!message && !pendientes.length)) return;
+    ocupado = true;
+    document.getElementById("enviar").disabled = true;
+    document.getElementById("adjuntar").disabled = true;
+    estado.textContent = "Pensando…";
+    if (message) agregar("user", message);
+    else agregar("user", "(archivo adjunto)");
+    const attachments = pendientes.slice();
+    pendientes = [];
+    pintarPreviews();
+    texto.value = "";
+    autoAltura();
+    try {
+      const r = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: sid, message, attachments }),
+      });
+      const data = await r.json();
+      if (!r.ok || data.error) throw new Error(data.error || "Error del servidor");
+      agregar("bot", data.reply || "");
+      agregarTools(data.tools);
+    } catch (e) {
+      agregar("error", e.message || String(e));
+    } finally {
+      ocupado = false;
+      document.getElementById("enviar").disabled = false;
+      document.getElementById("adjuntar").disabled = false;
+      estado.textContent = "Listo";
+      texto.focus();
+    }
+  };
+
+  agregar("bot", "Hola, soy agroNexus. ¿En qué te ayudo?");
+  texto.focus();
+</script>
 </body>
 </html>
