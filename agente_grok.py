@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import threading
+import uuid
 import webbrowser
 import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
