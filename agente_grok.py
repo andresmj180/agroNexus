@@ -572,7 +572,199 @@ def ejecutar_herramienta(nombre: str, args: dict) -> str:
 
 # ------------------------------- AGENTE --------------------------------
 SESIONES = {}          # id de sesión -> historial de mensajes
-LOCK = threading.Lock()
+LOCK = threading.RLock()
+HISTORIAL_ARCHIVO = os.path.join(os.path.dirname(RUTA), "historial.json")
+HISTORIAL_META = {}    # id -> {titulo, creada, actualizada}
+
+
+def _contenido_sin_imagenes(content):
+    if not isinstance(content, list):
+        return content
+    out = []
+    for p in content:
+        if isinstance(p, dict) and p.get("type") == "image_url":
+            out.append({"type": "text", "text": "[imagen adjunta]"})
+        else:
+            out.append(p)
+    return out
+
+
+def _msg_a_dict(msg) -> dict:
+    if isinstance(msg, dict):
+        role = msg.get("role", "assistant")
+        content = msg.get("content")
+        d = {"role": role, "content": _contenido_sin_imagenes(content)}
+        if msg.get("tool_calls"):
+            d["tool_calls"] = msg["tool_calls"]
+        if msg.get("tool_call_id"):
+            d["tool_call_id"] = msg["tool_call_id"]
+    else:
+        d = {
+            "role": getattr(msg, "role", "assistant"),
+            "content": _contenido_sin_imagenes(getattr(msg, "content", None)),
+        }
+        tcs = getattr(msg, "tool_calls", None)
+        if tcs:
+            d["tool_calls"] = []
+            for tc in tcs:
+                fn = getattr(tc, "function", None)
+                d["tool_calls"].append({
+                    "id": getattr(tc, "id", ""),
+                    "type": "function",
+                    "function": {
+                        "name": getattr(fn, "name", "") if fn else "",
+                        "arguments": getattr(fn, "arguments", "") if fn else "",
+                    },
+                })
+    if d.get("role") == "tool" and isinstance(d.get("content"), str) and len(d["content"]) > 2000:
+        d["content"] = d["content"][:2000] + "\n[…truncado]"
+    return d
+
+
+def _titulo_de_mensajes(messages) -> str:
+    for m in messages:
+        d = _msg_a_dict(m)
+        if d.get("role") != "user":
+            continue
+        c = d.get("content")
+        if isinstance(c, list):
+            c = " ".join(str(p.get("text", "")) for p in c if isinstance(p, dict))
+        texto = " ".join(str(c or "").split())
+        if texto:
+            return (texto[:48] + "…") if len(texto) > 48 else texto
+    return "Nueva conversación"
+
+
+def _touch_conversacion(sid: str, messages=None) -> None:
+    ahora = datetime.datetime.now().isoformat(timespec="seconds")
+    meta = HISTORIAL_META.get(sid) or {}
+    if not meta.get("creada"):
+        meta["creada"] = ahora
+    meta["actualizada"] = ahora
+    if messages:
+        auto = _titulo_de_mensajes(messages)
+        if not meta.get("titulo") or meta.get("titulo") in ("Nueva conversación", "Conversación"):
+            meta["titulo"] = auto
+    HISTORIAL_META[sid] = meta
+
+
+def _cargar_historial() -> None:
+    try:
+        with open(HISTORIAL_ARCHIVO, encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return
+    except Exception:
+        return
+    if not isinstance(data, dict):
+        return
+    convs = data.get("conversaciones")
+    if not isinstance(convs, dict):
+        return
+    with LOCK:
+        for sid, item in convs.items():
+            if not isinstance(item, dict):
+                continue
+            msgs = item.get("mensajes")
+            if isinstance(msgs, list) and msgs:
+                SESIONES[sid] = msgs
+            HISTORIAL_META[sid] = {
+                "titulo": str(item.get("titulo") or "Conversación"),
+                "creada": str(item.get("creada") or ""),
+                "actualizada": str(item.get("actualizada") or ""),
+            }
+
+
+def _guardar_historial() -> None:
+    convs = {}
+    with LOCK:
+        sids = set(SESIONES) | set(HISTORIAL_META)
+        for sid in sids:
+            messages = SESIONES.get(sid) or []
+            meta = HISTORIAL_META.get(sid) or {}
+            convs[sid] = {
+                "titulo": meta.get("titulo") or _titulo_de_mensajes(messages),
+                "creada": meta.get("creada") or "",
+                "actualizada": meta.get("actualizada") or "",
+                "mensajes": [_msg_a_dict(m) for m in messages],
+            }
+    tmp = HISTORIAL_ARCHIVO + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump({"conversaciones": convs}, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, HISTORIAL_ARCHIVO)
+    except OSError:
+        pass
+
+
+def listar_conversaciones() -> list:
+    with LOCK:
+        items = []
+        sids = set(SESIONES) | set(HISTORIAL_META)
+        for sid in sids:
+            meta = HISTORIAL_META.get(sid) or {}
+            msgs = SESIONES.get(sid) or []
+            items.append({
+                "id": sid,
+                "titulo": meta.get("titulo") or _titulo_de_mensajes(msgs),
+                "creada": meta.get("creada") or "",
+                "actualizada": meta.get("actualizada") or "",
+            })
+        items.sort(key=lambda x: x.get("actualizada") or "", reverse=True)
+        return items[:50]
+
+
+def mensajes_visibles(sid: str) -> list:
+    with LOCK:
+        messages = SESIONES.get(sid) or []
+    visibles = []
+    for m in messages:
+        d = _msg_a_dict(m)
+        role = d.get("role")
+        if role not in ("user", "assistant") or d.get("tool_calls"):
+            continue
+        c = d.get("content")
+        if isinstance(c, list):
+            c = "\n".join(
+                str(p.get("text", "")) for p in c
+                if isinstance(p, dict) and p.get("text")
+            )
+        texto = (c or "").strip()
+        if texto:
+            visibles.append({"role": role, "content": texto})
+    return visibles
+
+
+def nueva_conversacion() -> str:
+    sid = str(uuid.uuid4())
+    with LOCK:
+        SESIONES[sid] = [{"role": "system", "content": SYSTEM_PROMPT}]
+        _touch_conversacion(sid, SESIONES[sid])
+        HISTORIAL_META[sid]["titulo"] = "Nueva conversación"
+    _guardar_historial()
+    return sid
+
+
+def eliminar_conversacion(sid: str) -> None:
+    with LOCK:
+        SESIONES.pop(sid, None)
+        HISTORIAL_META.pop(sid, None)
+    _guardar_historial()
+
+
+def renombrar_conversacion(sid: str, titulo: str) -> bool:
+    titulo = (titulo or "").strip()[:80] or "Conversación"
+    with LOCK:
+        if sid not in HISTORIAL_META and sid not in SESIONES:
+            return False
+        meta = HISTORIAL_META.get(sid) or {}
+        meta["titulo"] = titulo
+        HISTORIAL_META[sid] = meta
+    _guardar_historial()
+    return True
+
+
+_cargar_historial()
 
 _TIPOS_IMAGEN = ("image/jpeg", "image/png", "image/gif", "image/webp")
 _MAX_ADJUNTO = 20 * 1024 * 1024  # 20 MB por archivo
