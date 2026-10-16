@@ -1297,6 +1297,9 @@ class Handler(BaseHTTPRequestHandler):
                 return
             try:
                 respuesta, herramientas = responder(sid, texto, imagen, adjuntos)
+                with LOCK:
+                    _touch_conversacion(sid, SESIONES.get(sid) or [])
+                _guardar_historial()
                 self._enviar(200, json.dumps(
                     {"reply": respuesta, "tools": herramientas}, ensure_ascii=False))
             except Exception as e:
