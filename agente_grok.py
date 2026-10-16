@@ -1243,8 +1243,44 @@ class Handler(BaseHTTPRequestHandler):
         sid = str(datos.get("session", "default"))
 
         if self.path == "/reset":
-            SESIONES.pop(sid, None)
+            with LOCK:
+                SESIONES[sid] = [{"role": "system", "content": SYSTEM_PROMPT}]
+                _touch_conversacion(sid, SESIONES[sid])
+                if HISTORIAL_META.get(sid, {}).get("titulo") not in (
+                    None, "Nueva conversación", "Conversación",
+                ):
+                    pass
+                else:
+                    HISTORIAL_META.setdefault(sid, {})["titulo"] = "Nueva conversación"
+            _guardar_historial()
             self._enviar(200, json.dumps({"ok": True}))
+
+        elif self.path == "/conversaciones":
+            self._enviar(200, json.dumps(
+                {"conversaciones": listar_conversaciones()}, ensure_ascii=False))
+
+        elif self.path == "/conversacion/nueva":
+            nuevo = nueva_conversacion()
+            self._enviar(200, json.dumps({"id": nuevo}, ensure_ascii=False))
+
+        elif self.path == "/conversacion/cargar":
+            msgs = mensajes_visibles(sid)
+            with LOCK:
+                meta = HISTORIAL_META.get(sid) or {}
+            self._enviar(200, json.dumps({
+                "id": sid,
+                "titulo": meta.get("titulo") or "Conversación",
+                "mensajes": msgs,
+            }, ensure_ascii=False))
+
+        elif self.path == "/conversacion/eliminar":
+            eliminar_conversacion(sid)
+            self._enviar(200, json.dumps({"ok": True}))
+
+        elif self.path == "/conversacion/renombrar":
+            titulo = str(datos.get("titulo") or datos.get("title") or "")
+            ok = renombrar_conversacion(sid, titulo)
+            self._enviar(200 if ok else 404, json.dumps({"ok": ok}))
 
         elif self.path == "/chat":
             texto = str(datos.get("message", "")).strip()
