@@ -1,359 +1,759 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>agroNexus</title>
-<link rel="icon" href="/icon">
-<style>
-  :root {
-    --beige: #E8DCC4;
-    --crema: #F3EBDD;
-    --olive: #6E6B47;
-    --barra: #4A3728;
-    --texto: #4A3728;
-    --blanco: #FFFFFF;
-    --error: #A8483C;
-  }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
-  body {
-    font-family: system-ui, "Segoe UI", sans-serif;
-    background: var(--crema);
-    color: var(--texto);
-    display: flex;
-  }
-  .sidebar {
-    width: 250px;
-    background: var(--olive);
-    color: var(--blanco);
-    display: flex;
-    flex-direction: column;
-    padding: 18px 14px;
-    flex-shrink: 0;
-  }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .brand img {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    object-fit: cover;
-    background: var(--beige);
-  }
-  .brand h1 {
-    font-size: 1.15rem;
-    margin: 0;
-    font-weight: 650;
-  }
-  .btn {
-    border: 0;
-    cursor: pointer;
-    font: inherit;
-    border-radius: 8px;
-  }
-  .btn-nueva {
-    background: var(--barra);
-    color: var(--blanco);
-    padding: 10px 12px;
-    width: 100%;
-    font-weight: 600;
-  }
-  .btn-nueva:hover { filter: brightness(1.08); }
-  .side-nota {
-    margin-top: 16px;
-    font-size: 0.82rem;
-    line-height: 1.4;
-    opacity: 0.9;
-  }
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-  }
-  header {
-    background: var(--barra);
-    color: var(--blanco);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-  header strong { font-size: 1rem; }
-  header span { font-size: 0.82rem; opacity: 0.85; }
-  #log {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .msg {
-    max-width: 72%;
-    padding: 10px 14px;
-    border-radius: 10px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    line-height: 1.45;
-  }
-  .msg.user {
-    align-self: flex-end;
-    background: var(--olive);
-    color: var(--blanco);
-  }
-  .msg.bot {
-    align-self: flex-start;
-    background: var(--beige);
-    color: var(--texto);
-  }
-  .msg.error {
-    align-self: center;
-    background: var(--error);
-    color: var(--blanco);
-  }
-  .tools {
-    align-self: flex-start;
-    font-size: 0.75rem;
-    color: var(--olive);
-    margin-top: -6px;
-    margin-left: 4px;
-  }
-  .composer {
-    padding: 12px 16px 16px;
-    background: var(--beige);
-    border-top: 1px solid #d4c6a8;
-    flex-shrink: 0;
-  }
-  .previews {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .chip {
-    background: var(--crema);
-    border: 1px solid #d4c6a8;
-    border-radius: 999px;
-    padding: 4px 8px 4px 10px;
-    font-size: 0.78rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .chip button {
-    border: 0;
-    background: transparent;
-    color: var(--error);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-  }
-  .row {
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-  }
-  #adjuntar, #enviar {
-    width: 42px;
-    height: 42px;
-    background: var(--olive);
-    color: var(--blanco);
-    flex-shrink: 0;
-    font-size: 1.1rem;
-  }
-  #adjuntar:hover, #enviar:hover { filter: brightness(1.08); }
-  #adjuntar:disabled, #enviar:disabled { opacity: 0.55; cursor: default; }
-  textarea {
-    flex: 1;
-    resize: none;
-    min-height: 42px;
-    max-height: 140px;
-    padding: 10px 12px;
-    border: 1px solid #cbbfa6;
-    border-radius: 8px;
-    font: inherit;
-    color: var(--texto);
-    background: var(--blanco);
-  }
-  textarea:focus { outline: 2px solid var(--olive); border-color: var(--olive); }
-  @media (max-width: 720px) {
-    .sidebar { display: none; }
-    .msg { max-width: 90%; }
-  }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>agroNexus</title>
+  <link rel="icon" href="/icon">
+  <style>
+    :root {
+      --avellana: #E8DCC4;
+      --crema: #F3EBDD;
+      --olive: #6E6B47;
+      --olive-hover: #5a5739;
+      --barra: #4A3728;
+      --texto: #4A3728;
+      --claro: #FFFFFF;
+      --error: #A8483C;
+      --sombra: 0 10px 28px rgba(74, 55, 40, .18);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--crema);
+      color: var(--texto);
+      display: flex;
+      overflow: hidden;
+    }
+    button, textarea, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+
+    .fondo {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(74, 55, 40, .35);
+      z-index: 30;
+    }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--olive);
+      color: var(--claro);
+      display: flex;
+      flex-direction: column;
+      z-index: 40;
+    }
+    .sidebar-top {
+      padding: 16px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .marca img {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--avellana);
+    }
+    .btn-nueva {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--barra);
+      color: var(--claro);
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 600;
+    }
+    .btn-nueva:hover { filter: brightness(1.12); }
+    .lista-conv {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 10px 16px;
+    }
+    .lista-vacia {
+      opacity: .75;
+      font-size: 13px;
+      padding: 12px 8px;
+    }
+    .conv {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      color: var(--claro);
+      border-radius: 10px;
+      padding: 9px 8px 9px 10px;
+      margin-bottom: 4px;
+    }
+    .conv:hover { background: rgba(255,255,255,.12); }
+    .conv.activa { background: var(--barra); }
+    .conv-texto { flex: 1; min-width: 0; }
+    .conv-titulo {
+      font-size: 13.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .conv-fecha { font-size: 11px; opacity: .75; margin-top: 2px; }
+    .conv-del {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--claro);
+      opacity: 0;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .conv:hover .conv-del, .conv:focus-within .conv-del { opacity: .9; }
+    .conv-del:hover { background: var(--error); }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--crema);
+    }
+    header {
+      height: 56px;
+      background: var(--barra);
+      color: var(--claro);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+    .btn-icon {
+      width: 38px; height: 38px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: inherit;
+      display: grid;
+      place-items: center;
+    }
+    .btn-icon:hover { background: rgba(255,255,255,.12); }
+    .btn-menu { display: none; }
+    header h1 { font-size: 16px; font-weight: 650; }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 18px 12px;
+    }
+    .bienvenida {
+      max-width: 560px;
+      margin: 8vh auto 0;
+      text-align: center;
+      color: var(--texto);
+    }
+    .bienvenida h2 { font-size: 28px; margin-bottom: 8px; }
+    .bienvenida p { opacity: .85; }
+    .msg {
+      max-width: 820px;
+      margin: 0 auto 14px;
+      display: flex;
+    }
+    .msg.user { justify-content: flex-end; }
+    .burbuja {
+      max-width: min(72ch, 100%);
+      padding: 11px 14px;
+      border-radius: 16px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+    .msg.user .burbuja {
+      background: var(--barra);
+      color: var(--claro);
+      border-bottom-right-radius: 6px;
+    }
+    .msg.asistente .burbuja {
+      background: var(--avellana);
+      color: var(--texto);
+      border-bottom-left-radius: 6px;
+    }
+    .burbuja pre {
+      white-space: pre-wrap;
+      background: rgba(74,55,40,.08);
+      padding: 8px;
+      border-radius: 8px;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+    .burbuja code {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: .92em;
+    }
+    .herramientas {
+      max-width: 820px;
+      margin: -8px auto 12px;
+      font-size: 12px;
+      opacity: .7;
+    }
+    .error-msg {
+      max-width: 820px;
+      margin: 0 auto 12px;
+      color: var(--error);
+      font-size: 14px;
+    }
+    .pts { display: inline-flex; gap: 5px; align-items: center; height: 18px; }
+    .pts i {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--olive);
+      animation: bounce 1s infinite ease-in-out;
+    }
+    .pts i:nth-child(2) { animation-delay: .15s; }
+    .pts i:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: .4; }
+      40% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .composer-wrap {
+      padding: 8px 16px 16px;
+      background: linear-gradient(transparent, var(--crema) 18%);
+    }
+    .composer {
+      position: relative;
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #cfc3a8;
+      border-radius: 18px;
+      box-shadow: var(--sombra);
+      padding: 8px 8px 8px 8px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 4px 6px 6px;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--avellana);
+      border-radius: 999px;
+      padding: 4px 8px 4px 10px;
+      font-size: 12px;
+    }
+    .chip button {
+      border: 0;
+      background: transparent;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+    }
+    .chip button:hover { background: var(--error); color: #fff; }
+    .fila {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .mas-wrap { position: relative; }
+    #texto {
+      flex: 1;
+      border: 0;
+      resize: none;
+      max-height: 180px;
+      min-height: 42px;
+      padding: 10px 8px;
+      background: transparent;
+      outline: none;
+      line-height: 1.4;
+    }
+    .btn-comp {
+      width: 40px; height: 40px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--texto);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .btn-comp:hover { background: var(--avellana); }
+    .btn-comp.activo, .btn-mic.grabando {
+      background: var(--error);
+      color: #fff;
+    }
+    .btn-enviar {
+      background: var(--olive);
+      color: #fff;
+    }
+    .btn-enviar:hover { background: var(--olive-hover); }
+    .btn-enviar:disabled { opacity: .45; cursor: default; }
+
+    .menu-plus {
+      display: none;
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 8px);
+      min-width: 210px;
+      background: var(--crema);
+      border: 1px solid #cfc3a8;
+      border-radius: 14px;
+      box-shadow: var(--sombra);
+      padding: 6px;
+      z-index: 20;
+    }
+    .menu-plus.abierto { display: block; }
+    .menu-plus button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 0;
+      background: transparent;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-align: left;
+    }
+    .menu-plus button:hover { background: var(--avellana); }
+    .menu-plus .ico {
+      width: 28px; height: 28px;
+      display: grid;
+      place-items: center;
+      background: var(--olive);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 820px) {
+      .btn-menu { display: grid; }
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        transform: translateX(-105%);
+        transition: transform .2s ease;
+      }
+      body.sidebar-abierta .sidebar { transform: none; }
+      body.sidebar-abierta .fondo { display: block; }
+    }
+  </style>
 </head>
 <body>
+  <div class="fondo" id="fondo"></div>
   <aside class="sidebar">
-    <div class="brand">
-      <img src="/icon" alt="">
-      <h1>agroNexus</h1>
-    </div>
-    <button class="btn btn-nueva" id="nueva" type="button">Nueva conversación</button>
-    <p class="side-nota">Asistente local. Los cambios de código se aprueban en la terminal.</p>
-  </aside>
-  <div class="main">
-    <header>
-      <strong>agroNexus</strong>
-      <span id="estado">Listo</span>
-    </header>
-    <div id="log"></div>
-    <form class="composer" id="form">
-      <div class="previews" id="previews"></div>
-      <div class="row">
-        <button class="btn" id="adjuntar" type="button" title="Adjuntar">+</button>
-        <textarea id="texto" rows="1" placeholder="Escribe un mensaje…"></textarea>
-        <button class="btn" id="enviar" type="submit" title="Enviar">➤</button>
+    <div class="sidebar-top">
+      <div class="marca">
+        <img src="/icon" alt="" onerror="this.remove()">
+        <span>agroNexus</span>
       </div>
-      <input id="archivos" type="file" multiple hidden>
-    </form>
-  </div>
-<script>
-  const log = document.getElementById("log");
-  const form = document.getElementById("form");
-  const texto = document.getElementById("texto");
-  const estado = document.getElementById("estado");
-  const previews = document.getElementById("previews");
-  const inputFiles = document.getElementById("archivos");
-  let sid = crypto.randomUUID();
-  let pendientes = [];
-  let ocupado = false;
+      <button class="btn-nueva" id="btnNueva" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+        Nueva conversación
+      </button>
+    </div>
+    <div class="lista-conv" id="listaConv"></div>
+  </aside>
 
-  function autoAltura() {
-    texto.style.height = "auto";
-    texto.style.height = Math.min(texto.scrollHeight, 140) + "px";
-  }
-  texto.addEventListener("input", autoAltura);
+  <section class="main">
+    <header>
+      <button class="btn-icon btn-menu" id="btnMenu" type="button" title="Conversaciones" aria-label="Conversaciones">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tituloChat">Nueva conversación</h1>
+    </header>
+    <div id="chat"></div>
+    <div class="composer-wrap">
+      <form class="composer" id="formulario">
+        <div class="menu-plus" id="menuPlus">
+          <button type="button" data-accept="image/jpeg,image/png,image/gif,image/webp">
+            <span class="ico">🖼</span> Subir imagen
+          </button>
+          <button type="button" data-accept=".pdf,.txt,.md,.csv,.json,.xml,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.rtf,.html,.py,.log">
+            <span class="ico">📄</span> Subir documento
+          </button>
+          <button type="button" data-accept="audio/*">
+            <span class="ico">🎵</span> Subir audio
+          </button>
+          <button type="button" data-accept="video/*">
+            <span class="ico">🎬</span> Subir video
+          </button>
+        </div>
+        <div class="chips" id="chips" hidden></div>
+        <div class="fila">
+          <div class="mas-wrap">
+            <button class="btn-comp" id="btnPlus" type="button" title="Adjuntar archivo" aria-label="Adjuntar archivo">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <textarea id="texto" rows="1" placeholder="Escribe un mensaje…" autocomplete="off"></textarea>
+          <button class="btn-comp btn-mic" id="btnMic" type="button" title="Dictar por micrófono" aria-label="Dictar por micrófono">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </button>
+          <button class="btn-comp btn-enviar" id="btnEnviar" type="submit" title="Enviar" aria-label="Enviar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <input id="filePick" type="file" hidden multiple>
+      </form>
+    </div>
+  </section>
 
-  function agregar(rol, contenido) {
-    const div = document.createElement("div");
-    div.className = "msg " + rol;
-    div.textContent = contenido;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
-    return div;
-  }
+  <script>
+    const $ = (s, r = document) => r.querySelector(s);
+    const chat = $("#chat");
+    const lista = $("#listaConv");
+    const texto = $("#texto");
+    const chipsEl = $("#chips");
+    const menuPlus = $("#menuPlus");
+    const filePick = $("#filePick");
+    const btnMic = $("#btnMic");
+    const btnEnviar = $("#btnEnviar");
+    const tituloChat = $("#tituloChat");
 
-  function agregarTools(lista) {
-    if (!lista || !lista.length) return;
-    const t = document.createElement("div");
-    t.className = "tools";
-    t.textContent = "Herramientas: " + lista.join(" · ");
-    log.appendChild(t);
-    log.scrollTop = log.scrollHeight;
-  }
+    let sessionId = localStorage.getItem("agronexus_session") || "";
+    let enviando = false;
+    let adjuntos = [];
+    let reconocimiento = null;
+    let dictando = false;
 
-  function pintarPreviews() {
-    previews.innerHTML = "";
-    pendientes.forEach((p, i) => {
-      const chip = document.createElement("span");
-      chip.className = "chip";
-      chip.append(p.name);
-      const x = document.createElement("button");
-      x.type = "button";
-      x.textContent = "×";
-      x.onclick = () => { pendientes.splice(i, 1); pintarPreviews(); };
-      chip.appendChild(x);
-      previews.appendChild(chip);
-    });
-  }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+    function renderTexto(s) {
+      const partes = String(s || "").split(/```/);
+      return partes.map((p, i) => {
+        if (i % 2) {
+          const limpio = p.replace(/^[a-zA-Z0-9_-]*\n/, "");
+          return "<pre><code>" + escapeHtml(limpio) + "</code></pre>";
+        }
+        return escapeHtml(p)
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/\n/g, "<br>");
+      }).join("");
+    }
+    function autoAltura() {
+      texto.style.height = "auto";
+      texto.style.height = Math.min(texto.scrollHeight, 180) + "px";
+    }
+    function fmtFecha(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleString("es", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    }
+    async function api(ruta, body = {}) {
+      const r = await fetch(ruta, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || "Error de red");
+      return data;
+    }
 
-  function leerArchivo(file) {
-    return new Promise((resolve, reject) => {
-      if (file.size > 20 * 1024 * 1024) {
-        reject(new Error(file.name + " supera 20 MB"));
+    function pintarBienvenida() {
+      chat.innerHTML = `
+        <div class="bienvenida">
+          <h2>agroNexus</h2>
+          <p>Escribe, dicta o adjunta un archivo para empezar.</p>
+        </div>`;
+    }
+    function agregarMsg(role, content) {
+      const bien = chat.querySelector(".bienvenida");
+      if (bien) bien.remove();
+      const div = document.createElement("div");
+      div.className = "msg " + (role === "user" ? "user" : "asistente");
+      const b = document.createElement("div");
+      b.className = "burbuja";
+      b.innerHTML = renderTexto(content);
+      div.appendChild(b);
+      chat.appendChild(div);
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+    function pintarMensajes(msgs) {
+      chat.innerHTML = "";
+      if (!msgs || !msgs.length) {
+        pintarBienvenida();
         return;
       }
-      const r = new FileReader();
-      r.onload = () => resolve({ name: file.name, type: file.type, data: r.result });
-      r.onerror = () => reject(new Error("No se pudo leer " + file.name));
-      r.readAsDataURL(file);
-    });
-  }
+      msgs.forEach(m => agregarMsg(m.role, m.content));
+    }
 
-  document.getElementById("adjuntar").onclick = () => inputFiles.click();
-  inputFiles.onchange = async () => {
-    try {
-      for (const f of inputFiles.files) {
-        if (pendientes.length >= 8) break;
-        pendientes.push(await leerArchivo(f));
+    function pintarLista(convs) {
+      lista.innerHTML = "";
+      if (!convs || !convs.length) {
+        lista.innerHTML = '<div class="lista-vacia">Aún no hay conversaciones.</div>';
+        return;
       }
-      pintarPreviews();
-    } catch (e) {
-      agregar("error", e.message);
-    }
-    inputFiles.value = "";
-  };
-
-  document.getElementById("nueva").onclick = async () => {
-    try {
-      await fetch("/reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session: sid }),
+      convs.forEach(c => {
+        const item = document.createElement("div");
+        item.className = "conv" + (c.id === sessionId ? " activa" : "");
+        item.innerHTML = `
+          <div class="conv-texto">
+            <div class="conv-titulo"></div>
+            <div class="conv-fecha"></div>
+          </div>
+          <button class="conv-del" type="button" title="Eliminar" aria-label="Eliminar">×</button>`;
+        item.querySelector(".conv-titulo").textContent = c.titulo || "Conversación";
+        item.querySelector(".conv-fecha").textContent = fmtFecha(c.actualizada || c.creada);
+        item.addEventListener("click", (ev) => {
+          if (ev.target.closest(".conv-del")) return;
+          abrirConv(c.id);
+        });
+        item.addEventListener("dblclick", async (ev) => {
+          if (ev.target.closest(".conv-del")) return;
+          const actual = c.titulo || "";
+          const nuevo = prompt("Nombre de la conversación:", actual);
+          if (nuevo == null) return;
+          await api("/conversacion/renombrar", { session: c.id, titulo: nuevo });
+          await cargarLista();
+          if (c.id === sessionId) tituloChat.textContent = nuevo.trim() || "Conversación";
+        });
+        item.querySelector(".conv-del").addEventListener("click", async (ev) => {
+          ev.stopPropagation();
+          if (!confirm("¿Eliminar esta conversación?")) return;
+          await api("/conversacion/eliminar", { session: c.id });
+          if (sessionId === c.id) {
+            sessionId = "";
+            localStorage.removeItem("agronexus_session");
+            await nuevaConv();
+          } else {
+            await cargarLista();
+          }
+        });
+        lista.appendChild(item);
       });
-    } catch (_) {}
-    sid = crypto.randomUUID();
-    log.innerHTML = "";
-    pendientes = [];
-    pintarPreviews();
-    agregar("bot", "Nueva conversación. ¿En qué te ayudo?");
-    estado.textContent = "Listo";
-    texto.focus();
-  };
-
-  texto.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter" && !ev.shiftKey) {
-      ev.preventDefault();
-      form.requestSubmit();
     }
-  });
 
-  form.onsubmit = async (ev) => {
-    ev.preventDefault();
-    const message = texto.value.trim();
-    if (ocupado || (!message && !pendientes.length)) return;
-    ocupado = true;
-    document.getElementById("enviar").disabled = true;
-    document.getElementById("adjuntar").disabled = true;
-    estado.textContent = "Pensando…";
-    if (message) agregar("user", message);
-    else agregar("user", "(archivo adjunto)");
-    const attachments = pendientes.slice();
-    pendientes = [];
-    pintarPreviews();
-    texto.value = "";
-    autoAltura();
-    try {
-      const r = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session: sid, message, attachments }),
-      });
-      const data = await r.json();
-      if (!r.ok || data.error) throw new Error(data.error || "Error del servidor");
-      agregar("bot", data.reply || "");
-      agregarTools(data.tools);
-    } catch (e) {
-      agregar("error", e.message || String(e));
-    } finally {
-      ocupado = false;
-      document.getElementById("enviar").disabled = false;
-      document.getElementById("adjuntar").disabled = false;
-      estado.textContent = "Listo";
+    async function cargarLista() {
+      const data = await api("/conversaciones");
+      const convs = data.conversaciones || [];
+      pintarLista(convs);
+      return convs;
+    }
+
+    async function abrirConv(id) {
+      const data = await api("/conversacion/cargar", { session: id });
+      sessionId = data.id;
+      localStorage.setItem("agronexus_session", sessionId);
+      tituloChat.textContent = data.titulo || "Conversación";
+      pintarMensajes(data.mensajes || []);
+      document.body.classList.remove("sidebar-abierta");
+      await cargarLista();
+    }
+
+    async function nuevaConv() {
+      const data = await api("/conversacion/nueva");
+      sessionId = data.id;
+      localStorage.setItem("agronexus_session", sessionId);
+      tituloChat.textContent = "Nueva conversación";
+      pintarBienvenida();
+      document.body.classList.remove("sidebar-abierta");
+      await cargarLista();
       texto.focus();
     }
-  };
 
-  agregar("bot", "Hola, soy agroNexus. ¿En qué te ayudo?");
-  texto.focus();
-</script>
+    function pintarChips() {
+      chipsEl.hidden = !adjuntos.length;
+      chipsEl.innerHTML = "";
+      adjuntos.forEach((a, i) => {
+        const el = document.createElement("span");
+        el.className = "chip";
+        el.innerHTML = "<span></span><button type='button' aria-label='Quitar'>×</button>";
+        el.querySelector("span").textContent = a.name;
+        el.querySelector("button").onclick = () => {
+          adjuntos.splice(i, 1);
+          pintarChips();
+        };
+        chipsEl.appendChild(el);
+      });
+    }
+    function leerArchivo(file) {
+      return new Promise((res, rej) => {
+        if (file.size > 20 * 1024 * 1024) return rej(new Error("Máximo 20 MB por archivo"));
+        const r = new FileReader();
+        r.onload = () => res({ name: file.name, type: file.type || "application/octet-stream", data: r.result });
+        r.onerror = () => rej(new Error("No se pudo leer el archivo"));
+        r.readAsDataURL(file);
+      });
+    }
+    async function agregarArchivos(files) {
+      for (const f of files) {
+        if (adjuntos.length >= 8) break;
+        adjuntos.push(await leerArchivo(f));
+      }
+      pintarChips();
+    }
+    function cerrarMenu() { menuPlus.classList.remove("abierto"); }
+
+    function SpeechAPI() {
+      return window.SpeechRecognition || window.webkitSpeechRecognition;
+    }
+    function detenerDictado() {
+      dictando = false;
+      btnMic.classList.remove("grabando");
+      if (reconocimiento) {
+        try { reconocimiento.stop(); } catch (e) {}
+      }
+    }
+    function iniciarDictado() {
+      const API = SpeechAPI();
+      if (!API) {
+        alert("Este navegador no admite dictado por micrófono. Prueba en Chrome.");
+        return;
+      }
+      reconocimiento = new API();
+      reconocimiento.lang = "es-MX";
+      reconocimiento.interimResults = true;
+      reconocimiento.continuous = true;
+      let base = texto.value;
+      if (base && !base.endsWith(" ")) base += " ";
+      reconocimiento.onresult = (ev) => {
+        let final = "", inter = "";
+        for (let i = 0; i < ev.results.length; i++) {
+          const t = ev.results[i][0].transcript;
+          if (ev.results[i].isFinal) final += t;
+          else inter += t;
+        }
+        texto.value = base + final + inter;
+        autoAltura();
+      };
+      reconocimiento.onerror = () => detenerDictado();
+      reconocimiento.onend = () => {
+        if (dictando) {
+          try { reconocimiento.start(); } catch (e) { detenerDictado(); }
+        }
+      };
+      dictando = true;
+      btnMic.classList.add("grabando");
+      reconocimiento.start();
+    }
+
+    $("#btnMenu").onclick = () => document.body.classList.toggle("sidebar-abierta");
+    $("#fondo").onclick = () => document.body.classList.remove("sidebar-abierta");
+    $("#btnNueva").onclick = () => nuevaConv();
+    $("#btnPlus").onclick = (ev) => {
+      ev.stopPropagation();
+      menuPlus.classList.toggle("abierto");
+    };
+    document.addEventListener("click", (ev) => {
+      if (!ev.target.closest(".mas-wrap") && !ev.target.closest("#menuPlus")) cerrarMenu();
+    });
+    menuPlus.querySelectorAll("button").forEach(btn => {
+      btn.onclick = () => {
+        filePick.accept = btn.dataset.accept || "*/*";
+        filePick.value = "";
+        filePick.click();
+        cerrarMenu();
+      };
+    });
+    filePick.onchange = () => {
+      if (filePick.files && filePick.files.length) {
+        agregarArchivos(filePick.files).catch(e => alert(e.message));
+      }
+    };
+    btnMic.onclick = () => dictando ? detenerDictado() : iniciarDictado();
+    if (!SpeechAPI()) btnMic.title = "Dictado no disponible en este navegador";
+
+    texto.addEventListener("input", autoAltura);
+    texto.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" && !ev.shiftKey) {
+        ev.preventDefault();
+        $("#formulario").requestSubmit();
+      }
+    });
+
+    chat.addEventListener("dragover", (ev) => { ev.preventDefault(); });
+    chat.addEventListener("drop", (ev) => {
+      ev.preventDefault();
+      if (ev.dataTransfer.files && ev.dataTransfer.files.length) {
+        agregarArchivos(ev.dataTransfer.files).catch(e => alert(e.message));
+      }
+    });
+
+    $("#formulario").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const message = texto.value.trim();
+      if (enviando || (!message && !adjuntos.length)) return;
+      if (!sessionId) await nuevaConv();
+      detenerDictado();
+      enviando = true;
+      btnEnviar.disabled = true;
+      const pending = adjuntos.slice();
+      adjuntos = [];
+      pintarChips();
+      texto.value = "";
+      autoAltura();
+      agregarMsg("user", message || pending.map(a => a.name).join(", "));
+      const espera = document.createElement("div");
+      espera.className = "msg asistente";
+      espera.id = "espera";
+      espera.innerHTML = '<div class="burbuja"><span class="pts"><i></i><i></i><i></i></span></div>';
+      chat.appendChild(espera);
+      espera.scrollIntoView({ behavior: "smooth", block: "end" });
+      try {
+        const data = await api("/chat", {
+          session: sessionId,
+          message,
+          attachments: pending
+        });
+        espera.remove();
+        agregarMsg("assistant", data.reply || "");
+        if (data.tools && data.tools.length) {
+          const h = document.createElement("div");
+          h.className = "herramientas";
+          h.textContent = "Herramientas: " + data.tools.join(" · ");
+          chat.appendChild(h);
+        }
+        const convs = await cargarLista();
+        const actual = convs.find(c => c.id === sessionId);
+        if (actual) tituloChat.textContent = actual.titulo || "Conversación";
+      } catch (e) {
+        espera.remove();
+        const err = document.createElement("div");
+        err.className = "error-msg";
+        err.textContent = e.message || "No se pudo enviar";
+        chat.appendChild(err);
+      } finally {
+        enviando = false;
+        btnEnviar.disabled = false;
+        texto.focus();
+      }
+    });
+
+    (async () => {
+      try {
+        const convs = await cargarLista();
+        if (sessionId && convs.some(c => c.id === sessionId)) {
+          await abrirConv(sessionId);
+        } else if (convs.length) {
+          await abrirConv(convs[0].id);
+        } else {
+          await nuevaConv();
+        }
+      } catch (e) {
+        pintarBienvenida();
+      }
+      texto.focus();
+    })();
+  </script>
 </body>
 </html>
