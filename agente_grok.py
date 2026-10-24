@@ -865,6 +865,56 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "ventana_secado",
+            "description": "Con el pronóstico, indica qué días hay sol suficiente "
+                           "para secar café y cuándo esperar o usar secadora.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "municipio": {"type": "string"},
+                    "latitud": {"type": "string"},
+                    "longitud": {"type": "string"},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "monitoreo_lote",
+            "description": "Guarda % de hojas con roya o frutos con broca, calcula "
+                           "tendencia por lote y lo compara con umbrales Cenicafé.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "lote": {"type": "string"},
+                    "roya": {"type": "string"},
+                    "broca": {"type": "string"},
+                    "fecha": {"type": "string"},
+                },
+                "required": ["lote"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "plan_semana",
+            "description": "Junta pronóstico, etapa del lote e historial y entrega "
+                           "una lista corta de labores de la semana.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "lote": {"type": "string"},
+                    "etapa": {"type": "string"},
+                    "municipio": {"type": "string"},
+                },
+            },
+        },
+    },
 ]
 
 FUNCIONES = {
