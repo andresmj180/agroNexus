@@ -1558,6 +1558,38 @@ def _ruta_estatica_segura(relativa: str):
     return destino
 
 
+def _listar_img() -> list:
+    try:
+        return [
+            n for n in os.listdir(_CARPETA_IMG)
+            if os.path.isfile(os.path.join(_CARPETA_IMG, n))
+            and os.path.splitext(n)[1].lower() in _MIME_STATIC
+        ]
+    except OSError:
+        return []
+
+
+def _icono_por_clave(clave: str) -> str | None:
+    """Elige el archivo de img/ cuyo nombre encaja con la herramienta."""
+    clave = (clave or "").lower()
+    pistas = {
+        "ventana_secado": ("ventanasolarsecado", "ventana", "secado", "solar"),
+        "monitoreo_lote": ("monitoreoroyaybroca", "monitoreo", "roya", "broca"),
+        "plan_semana": ("plansemanal", "plan", "semana", "semanal"),
+    }
+    preferidas = pistas.get(clave, (clave,))
+    nombres = _listar_img()
+    if not nombres:
+        return None
+    bajos = {n.lower(): n for n in nombres}
+    for pista in preferidas:
+        for bajo, real in bajos.items():
+            stem = os.path.splitext(bajo)[0]
+            if pista in stem.replace(" ", "").replace("_", "").replace("-", ""):
+                return real
+    return None
+
+
 def _ruta_img_segura(relativa: str):
     """Resuelve un archivo dentro de img/ sin salir de esa carpeta."""
     rel = (relativa or "").replace("\\", "/").lstrip("/")
