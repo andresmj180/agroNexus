@@ -1556,6 +1556,39 @@ def _ruta_estatica_segura(relativa: str):
     return destino
 
 
+def _ruta_img_segura(relativa: str):
+    """Resuelve un archivo dentro de img/ sin salir de esa carpeta."""
+    rel = (relativa or "").replace("\\", "/").lstrip("/")
+    if rel.startswith("img/"):
+        rel = rel[4:]
+    partes = [p for p in rel.split("/") if p]
+    if not partes or any(p == ".." or p == "." for p in partes):
+        return None
+    destino = os.path.abspath(os.path.join(_CARPETA_IMG, *partes))
+    raiz = os.path.abspath(_CARPETA_IMG)
+    if destino != raiz and not destino.startswith(raiz + os.sep):
+        return None
+    if not os.path.isfile(destino):
+        return None
+    return destino
+
+
+_MENU_INJECT = (
+    '\n<link rel="stylesheet" href="/static/menu-herramientas.css">'
+    '\n<script src="/static/menu-herramientas.js" defer></script>\n'
+)
+
+
+def _html_con_menu(html_txt: str) -> str:
+    if "menu-herramientas.js" in html_txt:
+        return html_txt
+    if "</head>" in html_txt:
+        return html_txt.replace("</head>", _MENU_INJECT + "</head>", 1)
+    if "</body>" in html_txt:
+        return html_txt.replace("</body>", _MENU_INJECT + "</body>", 1)
+    return html_txt + _MENU_INJECT
+
+
 # ------------------------------ SERVIDOR -------------------------------
 class Handler(BaseHTTPRequestHandler):
     def _enviar(self, codigo, cuerpo, tipo="application/json"):
