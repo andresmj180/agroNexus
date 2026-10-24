@@ -1576,10 +1576,6 @@ def _icono_por_clave(clave: str) -> str | None:
         "ventana_secado": ("ventanasolarsecado", "ventana", "secado", "solar"),
         "monitoreo_lote": ("monitoreoroyaybroca", "monitoreo", "roya", "broca"),
         "plan_semana": ("plansemanal", "plan", "semana", "semanal"),
-        "fondo": (
-            "fondochat", "fondo-chat", "fondo_chat", "fondo",
-            "cafeto", "rama", "planta", "coffee", "cafetero",
-        ),
     }
     preferidas = pistas.get(clave, (clave,))
     nombres = _listar_img()
