@@ -927,6 +927,9 @@ FUNCIONES = {
     "memoria_leer": memoria_leer,
     "memoria_guardar": memoria_guardar,
     "memoria_borrar": memoria_borrar,
+    "ventana_secado": ventana_secado,
+    "monitoreo_lote": monitoreo_lote,
+    "plan_semana": plan_semana,
 }
 
 
