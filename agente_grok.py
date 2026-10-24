@@ -1607,7 +1607,7 @@ class Handler(BaseHTTPRequestHandler):
         if ruta in ("/", "/index.html"):
             try:
                 with open(_RUTA_INDEX, encoding="utf-8") as f:
-                    self._enviar(200, f.read(), "text/html")
+                    self._enviar(200, _html_con_menu(f.read()), "text/html")
             except OSError:
                 self._enviar(404, "No encontrado", "text/plain")
         elif ruta == "/icon" and ICONO_RUTA:
