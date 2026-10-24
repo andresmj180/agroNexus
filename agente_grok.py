@@ -1149,6 +1149,7 @@ def responder(sid: str, texto: str, imagen: str = "", adjuntos: list | None = No
 
 # --------------------------- ARCHIVOS ESTÁTICOS --------------------------
 _CARPETA_STATIC = os.path.join(os.path.dirname(RUTA), "static")
+_CARPETA_IMG = os.path.join(os.path.dirname(RUTA), "img")
 _RUTA_INDEX = os.path.join(_CARPETA_STATIC, "index.html")
 _MIME_STATIC = {
     ".html": "text/html",
