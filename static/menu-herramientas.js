@@ -184,8 +184,25 @@
     }
   }
 
+  function verFondoChat() {
+    const sels = [
+      "main", "#app", "#root", ".app", ".layout",
+      ".chat", "#chat", ".chat-wrap", ".chat-container",
+      ".mensajes", "#mensajes", ".messages", "#messages",
+      ".conversation", ".thread", ".content",
+    ];
+    sels.forEach((sel) => {
+      document.querySelectorAll(sel).forEach((n) => {
+        if (n === document.body) return;
+        if (n.classList.contains("agro-hb") || n.classList.contains("agro-sheet")) return;
+        n.classList.add("agro-chat-transparente");
+      });
+    });
+  }
+
   function montar() {
     document.body.append(barra, fondo, sheet);
+    verFondoChat();
   }
 
   if (document.readyState === "loading") {
