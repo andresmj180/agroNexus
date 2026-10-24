@@ -441,6 +441,56 @@ def _guardar_datos_herr(data: dict) -> None:
     os.replace(tmp, _DATOS_HERR)
 
 
+def _texto_nombre(v) -> str:
+    """Quita comas, guiones y puntuación; deja el nombre para buscar o comparar."""
+    s = str(v or "").replace("\xa0", " ").strip()
+    s = s.replace("–", "-").replace("—", "-").replace("−", "-")
+    s = re.sub(r"[,;/_|]+", " ", s)
+    s = re.sub(r"[-]+", " ", s)
+    s = re.sub(r"[.]+", " ", s)
+    s = re.sub(r"[()\[\]{}'\"¿?¡!:]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _clave_nombre(v) -> str:
+    s = _texto_nombre(v).lower()
+    return s.translate(str.maketrans("áéíóúüñ", "aeioun"))
+
+
+def _numero_suelto(v):
+    """Acepta 5, 5.2, 5,2, 5 % o vacío."""
+    if v is None:
+        return None
+    s = str(v).strip()
+    if not s:
+        return None
+    s = s.replace("%", " ").replace("º", " ").replace("°", " ")
+    s = re.sub(r"\s+", "", s)
+    s = s.replace(",", ".")
+    m = re.search(r"[-+]?\d+(?:\.\d+)?", s)
+    if not m:
+        return None
+    return float(m.group(0))
+
+
+def _coords_en_texto(texto: str):
+    """Si el usuario pegó coordenadas (con coma o guion), las saca del texto."""
+    t = str(texto or "").strip()
+    if not t:
+        return None
+    nums = re.findall(r"[-+]?\d+[.,]\d+|[-+]?\d+", t)
+    if len(nums) < 2:
+        return None
+    try:
+        lat = float(nums[0].replace(",", "."))
+        lon = float(nums[1].replace(",", "."))
+    except ValueError:
+        return None
+    if -90 <= lat <= 90 and -180 <= lon <= 180:
+        return lat, lon
+    return None
+
+
 def _http_json(url: str) -> dict:
     import urllib.request
     req = urllib.request.Request(url, headers={"User-Agent": "agroNexus/1.0"})
