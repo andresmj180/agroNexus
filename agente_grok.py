@@ -628,14 +628,14 @@ def ventana_secado(municipio: str = "", latitud: str = "",
 def monitoreo_lote(lote: str, roya: str = "", broca: str = "",
                    fecha: str = "") -> str:
     """Guarda % de roya/broca, calcula tendencia y compara con umbral Cenicafé."""
-    lote = (lote or "").strip()
+    lote = _texto_nombre(lote)
     if not lote:
         return "Indica el lote."
 
     def _pct(v):
-        if v is None or str(v).strip() == "":
+        x = _numero_suelto(v)
+        if x is None:
             return None
-        x = float(str(v).replace(",", "."))
         if x < 0 or x > 100:
             raise ValueError("El porcentaje debe estar entre 0 y 100.")
         return x
@@ -649,7 +649,8 @@ def monitoreo_lote(lote: str, roya: str = "", broca: str = "",
     regs = data.setdefault("monitoreos", [])
     regs.append({"lote": lote, "fecha": fecha, "roya": r, "broca": b})
     _guardar_datos_herr(data)
-    hist = [x for x in regs if str(x.get("lote", "")).lower() == lote.lower()]
+    clave_lote = _clave_nombre(lote)
+    hist = [x for x in regs if _clave_nombre(x.get("lote", "")) == clave_lote]
     hist.sort(key=lambda x: str(x.get("fecha") or ""))
     lineas = [f"Monitoreo — lote {lote} ({fecha})", ""]
     if r is not None:
