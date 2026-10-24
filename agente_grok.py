@@ -1613,9 +1613,7 @@ def _ruta_img_segura(relativa: str):
 
 _MENU_INJECT = (
     '\n<link rel="stylesheet" href="/static/menu-herramientas.css">'
-    '\n<link rel="stylesheet" href="/static/fondo-chat.css">'
-    '\n<script src="/static/menu-herramientas.js" defer></script>'
-    '\n<script src="/static/fondo-chat.js" defer></script>\n'
+    '\n<script src="/static/menu-herramientas.js" defer></script>\n'
 )
 
 
