@@ -1683,8 +1683,6 @@ class Handler(BaseHTTPRequestHandler):
                 self._enviar(404, "No encontrado", "text/plain")
         elif ruta.startswith("/img/icono/"):
             clave = ruta.split("/img/icono/", 1)[-1].strip("/")
-            if clave == "fondo":
-                clave = "fondo"
             nombre = _icono_por_clave(clave)
             destino = os.path.join(_CARPETA_IMG, nombre) if nombre else None
             if not destino or not os.path.isfile(destino):
