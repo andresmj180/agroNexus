@@ -1673,6 +1673,20 @@ class Handler(BaseHTTPRequestHandler):
                 self._enviar(200, datos, tipo)
             except OSError:
                 self._enviar(404, "No encontrado", "text/plain")
+        elif ruta in ("/img/fondo", "/img/fondo-chat"):
+            nombre = _icono_por_clave("fondo")
+            destino = os.path.join(_CARPETA_IMG, nombre) if nombre else None
+            if not destino or not os.path.isfile(destino):
+                self._enviar(404, "No encontrado", "text/plain")
+                return
+            ext = os.path.splitext(destino)[1].lower()
+            tipo = _MIME_STATIC.get(ext, "application/octet-stream")
+            try:
+                with open(destino, "rb") as f:
+                    datos = f.read()
+                self._enviar(200, datos, tipo)
+            except OSError:
+                self._enviar(404, "No encontrado", "text/plain")
         elif ruta.startswith("/img/icono/"):
             clave = ruta.split("/img/icono/", 1)[-1].strip("/")
             if clave == "fondo":
