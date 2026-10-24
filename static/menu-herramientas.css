@@ -1,0 +1,229 @@
+/* Menú de herramientas agroNexus — no pisa estilos del chat */
+.agro-hb {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 12000;
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  background: #4A3728;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(74, 55, 40, 0.35);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.agro-hb button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #F3EBDD;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 92px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.agro-hb button:hover,
+.agro-hb button:focus-visible {
+  background: #6E6B47;
+  outline: none;
+}
+
+.agro-hb button.is-on {
+  background: #6E6B47;
+  color: #fff;
+}
+
+.agro-hb img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #E8DCC4;
+  background: #E8DCC4;
+}
+
+.agro-sheet-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(74, 55, 40, 0.42);
+  z-index: 12010;
+  display: none;
+}
+
+.agro-sheet-bg.is-open {
+  display: block;
+}
+
+.agro-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 110%);
+  z-index: 12020;
+  width: min(560px, 100%);
+  max-height: min(86vh, 720px);
+  overflow: auto;
+  background: #F3EBDD;
+  color: #4A3728;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -12px 40px rgba(74, 55, 40, 0.28);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  transition: transform 0.28s ease;
+}
+
+.agro-sheet.is-open {
+  transform: translate(-50%, 0);
+}
+
+.agro-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  background: #4A3728;
+  color: #fff;
+  position: sticky;
+  top: 0;
+}
+
+.agro-sheet-head img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #E8DCC4;
+}
+
+.agro-sheet-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.agro-sheet-head p {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  opacity: 0.88;
+  font-weight: 400;
+}
+
+.agro-sheet-x {
+  margin-left: auto;
+  border: 0;
+  background: #6E6B47;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.agro-sheet-body {
+  padding: 16px 18px 28px;
+}
+
+.agro-sheet label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin: 10px 0 4px;
+}
+
+.agro-sheet input,
+.agro-sheet select,
+.agro-sheet textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #E8DCC4;
+  background: #fff;
+  color: #4A3728;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.agro-sheet textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.agro-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.agro-go {
+  margin-top: 14px;
+  width: 100%;
+  border: 0;
+  background: #6E6B47;
+  color: #fff;
+  font-weight: 700;
+  padding: 11px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.agro-go:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.agro-out {
+  margin-top: 14px;
+  background: #E8DCC4;
+  border-radius: 12px;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  display: none;
+}
+
+.agro-out.is-on {
+  display: block;
+}
+
+.agro-out.is-err {
+  background: #f7e4e1;
+  color: #A8483C;
+}
+
+.agro-hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin: 0 0 8px;
+}
+
+@media (max-width: 640px) {
+  .agro-hb {
+    bottom: 10px;
+    gap: 4px;
+    width: calc(100% - 16px);
+    justify-content: space-around;
+  }
+  .agro-hb button {
+    min-width: 0;
+    flex: 1;
+    font-size: 10px;
+    padding: 4px;
+  }
+  .agro-row {
+    grid-template-columns: 1fr;
+  }
+}
