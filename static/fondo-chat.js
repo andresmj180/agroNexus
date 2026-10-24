@@ -1,1 +1,0 @@
-/* Revertido: este archivo ya no se usa. */
