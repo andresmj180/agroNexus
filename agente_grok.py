@@ -500,22 +500,31 @@ def _http_json(url: str) -> dict:
 
 def _geocodificar(municipio: str) -> tuple:
     import urllib.parse
-    nombre = (municipio or "").strip()
+    nombre = _texto_nombre(municipio)
     if not nombre:
         raise ValueError("Municipio vacío.")
-    q = urllib.parse.urlencode({
-        "name": nombre, "count": 3, "language": "es", "country": "CO",
-    })
-    data = _http_json("https://geocoding-api.open-meteo.com/v1/search?" + q)
-    results = data.get("results") or []
+    candidatos = [nombre]
+    if " " in nombre:
+        candidatos.append(nombre.split()[0])
+    results = []
+    for cand in candidatos:
+        q = urllib.parse.urlencode({
+            "name": cand, "count": 5, "language": "es", "country": "CO",
+        })
+        data = _http_json("https://geocoding-api.open-meteo.com/v1/search?" + q)
+        results = data.get("results") or []
+        if results:
+            break
     if not results:
-        q = urllib.parse.urlencode({"name": nombre, "count": 1, "language": "es"})
+        q = urllib.parse.urlencode({"name": nombre, "count": 3, "language": "es"})
         data = _http_json("https://geocoding-api.open-meteo.com/v1/search?" + q)
         results = data.get("results") or []
     if not results:
         raise ValueError(f"No encontré '{nombre}' en el mapa.")
     r = results[0]
-    etiqueta = ", ".join(x for x in (r.get("name"), r.get("admin1"), r.get("country")) if x)
+    etiqueta = ", ".join(
+        x for x in (r.get("name"), r.get("admin1"), r.get("country")) if x
+    )
     return float(r["latitude"]), float(r["longitude"]), etiqueta
 
 
