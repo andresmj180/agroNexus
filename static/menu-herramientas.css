@@ -1,3 +1,20 @@
+/* Fondo del chat: img/chat_background.jpeg */
+html,
+body {
+  background-color: #E8DCC4 !important;
+  background-image: url("/img/chat_background.jpeg") !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+}
+
+.agro-chat-transparente {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
 /* Menú de herramientas agroNexus — dock lateral */
 .agro-hb {
   position: fixed;
