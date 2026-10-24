@@ -543,14 +543,16 @@ def _pronostico(lat: float, lon: float) -> dict:
 
 def _resolver_coords(municipio: str = "", latitud: str = "",
                      longitud: str = "") -> tuple:
-    try:
-        if str(latitud).strip() and str(longitud).strip():
-            lat = float(str(latitud).replace(",", "."))
-            lon = float(str(longitud).replace(",", "."))
-            return lat, lon, f"{lat:.3f}, {lon:.3f}"
-    except ValueError:
-        pass
-    mun = (municipio or "").strip()
+    lat_n, lon_n = _numero_suelto(latitud), _numero_suelto(longitud)
+    if lat_n is not None and lon_n is not None:
+        if -90 <= lat_n <= 90 and -180 <= lon_n <= 180:
+            return lat_n, lon_n, f"{lat_n:.3f}, {lon_n:.3f}"
+    mun = str(municipio or "").strip()
+    extra = _coords_en_texto(mun)
+    if extra:
+        lat, lon = extra
+        return lat, lon, f"{lat:.3f}, {lon:.3f}"
+    mun = _texto_nombre(mun)
     if mun:
         return _geocodificar(mun)
     return 5.0689, -75.5174, "Manizales (predeterminado)"
