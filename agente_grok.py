@@ -716,7 +716,21 @@ def plan_semana(lote: str = "", etapa: str = "cosecha",
         probs = daily.get("precipitation_probability_max") or []
     except Exception:
         fechas, lluvias, sols, probs = [], [], [], []
-    etapa = (etapa or "cosecha").strip().lower()
+    etapa_raw = _clave_nombre(etapa) or "cosecha"
+    aliases = {
+        "crecimiento": "crecimiento", "vegetativo": "crecimiento",
+        "floracion": "floracion", "flor": "floracion",
+        "llenado": "llenado", "grano": "llenado",
+        "maduracion": "maduracion", "maduro": "maduracion",
+        "cosecha": "cosecha", "recoleccion": "cosecha",
+        "postcosecha": "postcosecha", "poscosecha": "postcosecha",
+        "secado": "postcosecha",
+    }
+    etapa = "cosecha"
+    for k, v in aliases.items():
+        if k in etapa_raw:
+            etapa = v
+            break
     labores, secar_dias, lluvia_dias = [], [], []
     dias_n = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]
     for i, fecha in enumerate(fechas):
