@@ -415,6 +415,323 @@ def buscar_web(consulta: str) -> str:
     return "\n".join(lineas) if lineas else "Sin resultados."
 
 
+# --------- Herramientas de finca (menú) ---------
+_DATOS_HERR = os.path.join(os.path.dirname(RUTA), "datos_herramientas.json")
+_UMBRAL_ROYA = 5.0   # % incidencia, guía Cenicafé (variedades susceptibles)
+_UMBRAL_BROCA = 2.0  # % frutos brocados, umbral de manejo
+
+
+def _cargar_datos_herr() -> dict:
+    try:
+        with open(_DATOS_HERR, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except FileNotFoundError:
+        return {}
+    except Exception:
+        return {}
+
+
+def _guardar_datos_herr(data: dict) -> None:
+    tmp = _DATOS_HERR + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, _DATOS_HERR)
+
+
+def _http_json(url: str) -> dict:
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "agroNexus/1.0"})
+    with urllib.request.urlopen(req, timeout=12) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _geocodificar(municipio: str) -> tuple:
+    import urllib.parse
+    nombre = (municipio or "").strip()
+    if not nombre:
+        raise ValueError("Municipio vacío.")
+    q = urllib.parse.urlencode({
+        "name": nombre, "count": 3, "language": "es", "country": "CO",
+    })
+    data = _http_json("https://geocoding-api.open-meteo.com/v1/search?" + q)
+    results = data.get("results") or []
+    if not results:
+        q = urllib.parse.urlencode({"name": nombre, "count": 1, "language": "es"})
+        data = _http_json("https://geocoding-api.open-meteo.com/v1/search?" + q)
+        results = data.get("results") or []
+    if not results:
+        raise ValueError(f"No encontré '{nombre}' en el mapa.")
+    r = results[0]
+    etiqueta = ", ".join(x for x in (r.get("name"), r.get("admin1"), r.get("country")) if x)
+    return float(r["latitude"]), float(r["longitude"]), etiqueta
+
+
+def _pronostico(lat: float, lon: float) -> dict:
+    import urllib.parse
+    q = urllib.parse.urlencode({
+        "latitude": f"{lat:.4f}",
+        "longitude": f"{lon:.4f}",
+        "daily": "weather_code,temperature_2m_max,precipitation_sum,"
+                 "precipitation_probability_max,sunshine_duration,cloud_cover_mean",
+        "timezone": "America/Bogota",
+        "forecast_days": 7,
+    })
+    return _http_json("https://api.open-meteo.com/v1/forecast?" + q)
+
+
+def _resolver_coords(municipio: str = "", latitud: str = "",
+                     longitud: str = "") -> tuple:
+    try:
+        if str(latitud).strip() and str(longitud).strip():
+            lat = float(str(latitud).replace(",", "."))
+            lon = float(str(longitud).replace(",", "."))
+            return lat, lon, f"{lat:.3f}, {lon:.3f}"
+    except ValueError:
+        pass
+    mun = (municipio or "").strip()
+    if mun:
+        return _geocodificar(mun)
+    return 5.0689, -75.5174, "Manizales (predeterminado)"
+
+
+def _dia_secado(sol_s, lluvia_mm, prob_lluvia, nubes) -> str:
+    horas_sol = (sol_s or 0) / 3600.0
+    lluvia = lluvia_mm or 0
+    prob = prob_lluvia or 0
+    nubes = nubes or 0
+    if lluvia >= 5 or prob >= 70:
+        return "esperar"
+    if horas_sol >= 6 and lluvia < 1 and nubes < 60:
+        return "secar"
+    if horas_sol >= 4 and lluvia < 2 and prob < 50:
+        return "posible"
+    return "secadora"
+
+
+def ventana_secado(municipio: str = "", latitud: str = "",
+                   longitud: str = "") -> str:
+    """Días con sol suficiente para secar café, según el pronóstico."""
+    lat, lon, donde = _resolver_coords(municipio, latitud, longitud)
+    data = _pronostico(lat, lon)
+    daily = data.get("daily") or {}
+    fechas = daily.get("time") or []
+    if not fechas:
+        return "No pude leer el pronóstico. Intenta de nuevo."
+    n = len(fechas)
+
+    def col(clave):
+        v = daily.get(clave) or []
+        return list(v) + [None] * (n - len(v))
+
+    sols, lluvias = col("sunshine_duration"), col("precipitation_sum")
+    probs, nubes = col("precipitation_probability_max"), col("cloud_cover_mean")
+    tmax = col("temperature_2m_max")
+    dias = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+    lineas = [f"Ventana de secado — {donde}", ""]
+    secar = []
+    for i, fecha in enumerate(fechas):
+        y, m, d = fecha.split("-")
+        dt = datetime.date(int(y), int(m), int(d))
+        nombre = dias[dt.weekday()]
+        horas = (sols[i] or 0) / 3600.0
+        lluvia = lluvias[i] or 0
+        prob = probs[i] or 0
+        rec = _dia_secado(sols[i], lluvias[i], probs[i], nubes[i])
+        t = tmax[i]
+        t_txt = f", {t:.0f} °C" if t is not None else ""
+        if rec == "secar":
+            marca, secar_txt = "SECAR al sol", nombre
+        elif rec == "posible":
+            marca, secar_txt = "posible, vigile nubes", nombre + "?"
+        elif rec == "secadora":
+            marca, secar_txt = "usar secadora o marquesina", None
+        else:
+            marca, secar_txt = "esperar (lluvia)", None
+        if secar_txt:
+            secar.append(secar_txt)
+        lineas.append(
+            f"{nombre} {d}/{m}: {horas:.1f} h sol, {lluvia:.1f} mm{t_txt} "
+            f"({int(prob)}% lluvia) → {marca}"
+        )
+    lineas.append("")
+    if secar:
+        lineas.append("Mejores días: " + ", ".join(secar) + ".")
+    else:
+        lineas.append("Esta semana no hay sol claro: priorice secadora o espere.")
+    return "\n".join(lineas)
+
+
+def monitoreo_lote(lote: str, roya: str = "", broca: str = "",
+                   fecha: str = "") -> str:
+    """Guarda % de roya/broca, calcula tendencia y compara con umbral Cenicafé."""
+    lote = (lote or "").strip()
+    if not lote:
+        return "Indica el lote."
+
+    def _pct(v):
+        if v is None or str(v).strip() == "":
+            return None
+        x = float(str(v).replace(",", "."))
+        if x < 0 or x > 100:
+            raise ValueError("El porcentaje debe estar entre 0 y 100.")
+        return x
+
+    r, b = _pct(roya), _pct(broca)
+    if r is None and b is None:
+        return "Indica al menos el % de roya o el % de broca."
+    if not (fecha or "").strip():
+        fecha = datetime.date.today().isoformat()
+    data = _cargar_datos_herr()
+    regs = data.setdefault("monitoreos", [])
+    regs.append({"lote": lote, "fecha": fecha, "roya": r, "broca": b})
+    _guardar_datos_herr(data)
+    hist = [x for x in regs if str(x.get("lote", "")).lower() == lote.lower()]
+    hist.sort(key=lambda x: str(x.get("fecha") or ""))
+    lineas = [f"Monitoreo — lote {lote} ({fecha})", ""]
+    if r is not None:
+        if r >= _UMBRAL_ROYA:
+            estado = "POR ENCIMA del umbral: actuar (manejo según guía Cenicafé)."
+        else:
+            estado = "por debajo del umbral."
+        lineas.append(
+            f"Roya: {r:.1f}% de hojas. Umbral: {_UMBRAL_ROYA:.0f}%. Está {estado}"
+        )
+    if b is not None:
+        if b >= _UMBRAL_BROCA:
+            estado = "POR ENCIMA del umbral: recoja granos del suelo y evalúe control."
+        else:
+            estado = "por debajo del umbral."
+        lineas.append(
+            f"Broca: {b:.1f}% de frutos. Umbral: {_UMBRAL_BROCA:.0f}%. Está {estado}"
+        )
+    if len(hist) >= 2:
+        lineas.append("")
+        lineas.append("Tendencia (últimos registros):")
+        for h in hist[-5:]:
+            bits = [h.get("fecha")]
+            if h.get("roya") is not None:
+                bits.append(f"roya {h['roya']}%")
+            if h.get("broca") is not None:
+                bits.append(f"broca {h['broca']}%")
+            lineas.append(" · ".join(str(x) for x in bits if x is not None))
+
+        def _trend(key):
+            vals = [h.get(key) for h in hist if h.get(key) is not None]
+            if len(vals) < 2:
+                return None
+            if vals[-1] > vals[-2] + 0.3:
+                return "sube"
+            if vals[-1] < vals[-2] - 0.3:
+                return "baja"
+            return "estable"
+
+        extra = []
+        tr, tb = _trend("roya"), _trend("broca")
+        if tr:
+            extra.append(f"roya {tr}")
+        if tb:
+            extra.append(f"broca {tb}")
+        if extra:
+            lineas.append("Resumen: " + ", ".join(extra) + ".")
+    else:
+        lineas.append("\nPrimer dato de este lote. Siga midiendo para ver tendencia.")
+    return "\n".join(lineas)
+
+
+def plan_semana(lote: str = "", etapa: str = "cosecha",
+                municipio: str = "") -> str:
+    """Lista corta de labores según pronóstico, etapa e historial del lote."""
+    lat, lon, donde = _resolver_coords(municipio, "", "")
+    try:
+        data = _pronostico(lat, lon)
+        daily = data.get("daily") or {}
+        fechas = daily.get("time") or []
+        lluvias = daily.get("precipitation_sum") or []
+        sols = daily.get("sunshine_duration") or []
+        probs = daily.get("precipitation_probability_max") or []
+    except Exception:
+        fechas, lluvias, sols, probs = [], [], [], []
+    etapa = (etapa or "cosecha").strip().lower()
+    labores, secar_dias, lluvia_dias = [], [], []
+    dias_n = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]
+    for i, fecha in enumerate(fechas):
+        y, m, d = fecha.split("-")
+        dt = datetime.date(int(y), int(m), int(d))
+        nom = f"{dias_n[dt.weekday()]} {d}/{m}"
+        rec = _dia_secado(
+            sols[i] if i < len(sols) else 0,
+            lluvias[i] if i < len(lluvias) else 0,
+            probs[i] if i < len(probs) else 0,
+            0,
+        )
+        if rec in ("secar", "posible"):
+            secar_dias.append(nom)
+        mm = lluvias[i] if i < len(lluvias) else 0
+        if (mm or 0) >= 5:
+            lluvia_dias.append(nom)
+    if etapa in ("cosecha", "maduracion"):
+        labores.append("Cosechar en seco: pases cada 15–20 días, solo pintón/maduro.")
+        if secar_dias:
+            labores.append("Secar café en: " + ", ".join(secar_dias) + ".")
+        else:
+            labores.append("Poca ventana de sol: use secadora o marquesina.")
+    if etapa in ("crecimiento", "floracion", "llenado"):
+        if lluvia_dias:
+            labores.append("No abonar en aguacero (" + ", ".join(lluvia_dias[:3]) + ").")
+        else:
+            labores.append("Ventana para abonar si el suelo está húmedo, no encharcado.")
+    if etapa == "floracion":
+        labores.append("Evite aspersiones fuertes en pico de flor. Revise cuaje.")
+    if etapa == "llenado":
+        labores.append("Ronda nutricional (K) si corresponde al plan de fertilización.")
+    if etapa == "postcosecha":
+        if secar_dias:
+            labores.append("Secado solar: " + ", ".join(secar_dias) + ".")
+        labores.append("Limpieza de tanques, silos y marquesina.")
+    datah = _cargar_datos_herr()
+    lote_n = (lote or "").strip()
+    hist = [
+        x for x in (datah.get("monitoreos") or [])
+        if not lote_n or str(x.get("lote", "")).lower() == lote_n.lower()
+    ]
+    hist.sort(key=lambda x: str(x.get("fecha") or ""))
+    ultimo = hist[-1] if hist else None
+    if ultimo:
+        if ultimo.get("roya") is not None and ultimo["roya"] >= _UMBRAL_ROYA:
+            labores.append(
+                f"Roya en {ultimo['roya']}% (lote {ultimo.get('lote')}): "
+                "programar control esta semana."
+            )
+        elif ultimo.get("roya") is not None:
+            labores.append(
+                f"Revisar roya (último {ultimo['roya']}% el {ultimo.get('fecha')}); "
+                f"umbral {int(_UMBRAL_ROYA)}%."
+            )
+        if ultimo.get("broca") is not None and ultimo["broca"] >= _UMBRAL_BROCA:
+            labores.append(
+                f"Broca en {ultimo['broca']}%: recoja granos del suelo y evalúe control."
+            )
+        elif ultimo.get("broca") is not None:
+            labores.append(
+                f"Muestreo de broca (último {ultimo['broca']}%); "
+                f"umbral {int(_UMBRAL_BROCA)}%."
+            )
+    else:
+        labores.append(
+            "Haga un muestreo de roya y broca (20 árboles / lote) y regístrelo."
+        )
+    if not labores:
+        labores.append("Semana de mantenimiento: plateo, sombrío y caminos.")
+    titulo = f"Plan de la semana — {lote_n or 'su lote'}"
+    if donde:
+        titulo += f" ({donde})"
+    lineas = [titulo, f"Etapa: {etapa}", ""]
+    for i, lab in enumerate(labores, 1):
+        lineas.append(f"{i}. {lab}")
+    return "\n".join(lineas)
+
+
 TOOLS = [
     {
         "type": "function",
