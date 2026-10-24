@@ -768,10 +768,11 @@ def plan_semana(lote: str = "", etapa: str = "cosecha",
             labores.append("Secado solar: " + ", ".join(secar_dias) + ".")
         labores.append("Limpieza de tanques, silos y marquesina.")
     datah = _cargar_datos_herr()
-    lote_n = (lote or "").strip()
+    lote_n = _texto_nombre(lote)
+    clave_lote = _clave_nombre(lote_n)
     hist = [
         x for x in (datah.get("monitoreos") or [])
-        if not lote_n or str(x.get("lote", "")).lower() == lote_n.lower()
+        if not clave_lote or _clave_nombre(x.get("lote", "")) == clave_lote
     ]
     hist.sort(key=lambda x: str(x.get("fecha") or ""))
     ultimo = hist[-1] if hist else None
