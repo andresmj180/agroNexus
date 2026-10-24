@@ -1699,6 +1699,25 @@ class Handler(BaseHTTPRequestHandler):
             ok = renombrar_conversacion(sid, titulo)
             self._enviar(200 if ok else 404, json.dumps({"ok": ok}))
 
+        elif self.path == "/herramienta":
+            nombre = str(datos.get("herramienta") or datos.get("nombre") or "").strip()
+            permitidas = ("ventana_secado", "monitoreo_lote", "plan_semana")
+            if nombre not in permitidas:
+                self._enviar(400, json.dumps(
+                    {"error": "Herramienta no reconocida"}, ensure_ascii=False))
+                return
+            args = {}
+            for clave in ("municipio", "latitud", "longitud", "lote",
+                          "roya", "broca", "fecha", "etapa"):
+                if clave in datos and datos[clave] is not None:
+                    args[clave] = str(datos[clave])
+            try:
+                resultado = ejecutar_herramienta(nombre, args)
+                self._enviar(200, json.dumps(
+                    {"resultado": resultado}, ensure_ascii=False))
+            except Exception as e:
+                self._enviar(500, json.dumps({"error": str(e)}, ensure_ascii=False))
+
         elif self.path == "/chat":
             texto = str(datos.get("message", "")).strip()
             try:
