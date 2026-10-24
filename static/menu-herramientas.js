@@ -25,9 +25,9 @@
 
   const FORMAS = {
     ventana_secado: `
-      <p class="agro-hint">Con el pronóstico, indica qué días hay sol suficiente para secar el café.</p>
-      <label for="agro-municipio">Municipio o vereda (opcional)</label>
-      <input id="agro-municipio" name="municipio" placeholder="Ej. Manizales, Chinchiná, Pitalito">
+      <p class="agro-hint">Con el pronóstico, indica qué días hay sol suficiente para secar el café. Escribe el nombre del municipio; comas o guiones no importan.</p>
+      <label for="agro-municipio">Municipio o vereda</label>
+      <input id="agro-municipio" name="municipio" placeholder="Ej. Manizales o Chinchiná Caldas">
       <div class="agro-row">
         <div>
           <label for="agro-lat">Latitud (opcional)</label>
@@ -43,15 +43,15 @@
     monitoreo_lote: `
       <p class="agro-hint">Reporta el porcentaje de hojas con roya o de frutos con broca. Se guarda y se compara con el umbral de Cenicafé.</p>
       <label for="agro-lote">Lote</label>
-      <input id="agro-lote" name="lote" required placeholder="Ej. El Roble — tabla 3">
+      <input id="agro-lote" name="lote" required placeholder="Ej. El Roble tabla 3">
       <div class="agro-row">
         <div>
           <label for="agro-roya">% hojas con roya</label>
-          <input id="agro-roya" name="roya" type="number" min="0" max="100" step="0.1" placeholder="0">
+          <input id="agro-roya" name="roya" placeholder="5 o 5,2">
         </div>
         <div>
           <label for="agro-broca">% frutos con broca</label>
-          <input id="agro-broca" name="broca" type="number" min="0" max="100" step="0.1" placeholder="0">
+          <input id="agro-broca" name="broca" placeholder="2 o 2,5">
         </div>
       </div>
       <label for="agro-fecha">Fecha del muestreo (opcional)</label>
@@ -61,7 +61,7 @@
     plan_semana: `
       <p class="agro-hint">Junta pronóstico, etapa del lote e historial y entrega una lista corta de labores.</p>
       <label for="agro-lote-p">Lote</label>
-      <input id="agro-lote-p" name="lote" placeholder="Ej. El Roble — tabla 3">
+      <input id="agro-lote-p" name="lote" placeholder="Ej. El Roble tabla 3">
       <label for="agro-etapa">Etapa del lote</label>
       <select id="agro-etapa" name="etapa">
         <option value="crecimiento">Crecimiento vegetativo</option>
@@ -71,7 +71,7 @@
         <option value="cosecha" selected>Cosecha</option>
         <option value="postcosecha">Poscosecha / secado</option>
       </select>
-      <label for="agro-municipio-p">Municipio (opcional)</label>
+      <label for="agro-municipio-p">Municipio</label>
       <input id="agro-municipio-p" name="municipio" placeholder="Ej. Manizales">
       <button class="agro-go" type="submit">Armar plan de la semana</button>
     `,
