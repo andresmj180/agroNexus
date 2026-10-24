@@ -101,6 +101,8 @@ def _asegurar_gitignore_icono() -> None:
         faltan.append("icon/")
     if "historial.json" not in lineas:
         faltan.append("historial.json")
+    if "datos_herramientas.json" not in lineas:
+        faltan.append("datos_herramientas.json")
     if not faltan:
         return
     extra = "" if not contenido or contenido.endswith("\n") else "\n"
