@@ -1597,7 +1597,10 @@ class Handler(BaseHTTPRequestHandler):
         datos = cuerpo.encode("utf-8") if isinstance(cuerpo, str) else cuerpo
         try:
             self.send_response(codigo)
-            self.send_header("Content-Type", f"{tipo}; charset=utf-8")
+            if tipo.startswith("image/") or tipo.startswith("font/"):
+                self.send_header("Content-Type", tipo)
+            else:
+                self.send_header("Content-Type", f"{tipo}; charset=utf-8")
             self.send_header("Content-Length", str(len(datos)))
             self.end_headers()
             self.wfile.write(datos)
